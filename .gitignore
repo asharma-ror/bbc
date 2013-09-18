@@ -1,0 +1,15 @@
+.bundle
+.DS_Store
+.rvmrc
+db/*.sqlite3*
+log/*.log
+tmp/restart.txt
+tmp/**/*
+.sass-cache
+*~
+public/_test.html
+config/settings.local.yml
+config/settings/*.local.yml
+config/environments/*.local.yml
+config/database.yml
+latest.dump

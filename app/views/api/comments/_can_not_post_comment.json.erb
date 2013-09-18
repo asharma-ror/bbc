@@ -1,0 +1,7 @@
+<%= {
+  :status    => 'ok',
+  :action    => 'ShowFormError',
+  :site_key  => @site_key,
+  :topic_key => @topic_key,
+  :text      => escape_javascript(flash[:err_msg])
+}.to_json.html_safe %>

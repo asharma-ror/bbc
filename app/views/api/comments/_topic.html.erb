@@ -1,0 +1,59 @@
+<div class="juvia-container"
+	data-site-key="<%= @site_key %>"
+	data-topic-key="<%= @topic_key %>"
+	data-topic-title="<%= @topic_title %>"
+	data-topic-url="<%= @topic_url %>">
+<div class="juvia-topic">
+  <% if @require_external_user %>
+    <% if @user_logged_in %> 
+      <%= render :partial => 'like_unlike'%>
+      <% if @topic.comments_open %>
+        <h3><%= t(:add_comment_title) %></h3>
+        <%= render :partial => 'user_form' %>
+        <%= render :partial => 'markdown_help' %>
+      <% else %>
+        <div class="row-fluid"><h3><%= t(:commenting_closed)%></h3></div>
+      <% end %>
+    <% else %>
+      <h3><%= @logged_in_message.html_safe %></h3>
+      <%= render :partial => 'like_unlike'%>
+      <% unless @topic.comments_open %>
+        <div class="row-fluid"><h3><%= t(:commenting_closed)%></h3></div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= render :partial => 'like_unlike'%>
+    <h3><%= t(:add_comment_title) %></h3>
+    <%= render :partial => 'form' %>
+    <%= render :partial => 'markdown_help' %>
+  <% end %>
+	<% comments = topic.comments.visible.to_a %>
+	<% if comments.size == 1 %>
+	    <%=render :partial=>"sorting", :locals => {:total_comments =>"1 comment", :sorting_option => false}%>
+		<div class="juvia-comments" id="juvia-comments-box"></div>
+	<% elsif comments.size > 1 %>
+		<%=render :partial=>"sorting", :locals => { :total_comments =>" #{comments.size.to_s} #{t(:comments)}" , :sorting_option => true}%>
+		<div class="juvia-comments" id="juvia-comments-box"></div>
+	<% else %>
+	    <%=render :partial=>"sorting", :locals => {:total_comments =>"", :sorting_option => false}%>
+		<div class="juvia-comments juvia-no-comments" id="juvia-comments-box"><%= t(:no_comments)%></div>
+	<% end %>
+</div>
+<div class="load_more_contain">
+  <img class="hide" width="16" height="11" style="margin:0 0 3px 5px" src="data:image/gif;base64,R0lGODlhEAALAPQAAP///z2LqeLt8dvp7u7090GNqz2LqV+fuJ/F1IW2ycrf51aatHWswaXJ14i4ys3h6FmctUCMqniuw+vz9eHs8fb5+meku+Tu8vT4+cfd5bbT3tbm7PH2+AAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCwAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQJCwAAACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQJCwAAACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQJCwAAACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAkLAAAALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkECQsAAAAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAkLAAAALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkECQsAAAAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7AAAAAAAAAAAA" alt="...">
+  <input type="button" id="show_more_comments" style="display:none;" class="btn btn-large lod-more-btn-block" value="<%= t(:show_more)%> ..." data-page = "2" onclick="Juvia.showMoreComments(this);" data-loading-text="<%= t(:loading)%>..."/>
+</div>
+
+<div id="users_liker" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="users_like_header"><%= t(:people_who_liked_this) %></h3>
+  </div>
+  <div class="modal-body"></div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true"><%= t(:close_btn) %></button>
+  </div>
+</div>
+
+<%= render :partial => 'comment_permalink' %>
+</div> <!-- juvia-container -->

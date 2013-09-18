@@ -1,0 +1,5 @@
+<%= @child_comment.author_name || 'Anonymous' %> replied to your comment on "<%= @child_comment.topic.title.to_s %>": <br/> <br/>
+
+<%= @child_comment.content %>
+
+<a href="<%= @child_comment.permalink(@child_comment.topic.url.to_s) %>">Link to comment</a> <br/> <br/>

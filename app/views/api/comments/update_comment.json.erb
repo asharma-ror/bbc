@@ -1,0 +1,5 @@
+<%= {
+  :status    => 'ok',
+  :comment_id => "#{@comment.id.to_s}",
+  :action    => 'UpdateComment'
+}.to_json.html_safe %>

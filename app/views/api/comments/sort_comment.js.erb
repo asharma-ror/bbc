@@ -1,0 +1,14 @@
+<% comments = {} %>
+<% @comments.each_with_index do |comment,index| %>
+    <%
+      options = comment_hash(comment, @username, @user_email)
+      comments.merge!({index => options})
+    %>
+<% end %>
+<%= juvia_handle_response(
+  :status    => 'ok',
+  :action    => 'SortComments',
+  :site_key  => @site_key,
+  :topic_key => @topic_key,
+  :comments  => comments
+) %>

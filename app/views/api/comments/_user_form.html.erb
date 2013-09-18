@@ -1,0 +1,9 @@
+<form
+method="post"
+action="javascript:void(0)"
+class="juvia-add-comment-form">
+    <input type="hidden" name="author_name" value="<%=@username%>" >
+    <input type="hidden" name="author_email" value="<%=@user_email%>" >
+    <input type="hidden" name="parent_id" value="" >
+	<%= render :partial => 'input_form' %>
+</form>

@@ -1,0 +1,2 @@
+$liked_msg_dom = Juvia.$('#liked_pages');
+$liked_msg_dom.html("<%= escape_javascript(i18_votes(@topic.reload)) %>");

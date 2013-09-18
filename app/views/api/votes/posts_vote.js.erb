@@ -1,0 +1,2 @@
+$liked_msg_dom = Juvia.$('#comment-vote-<%=@comment.id.to_s%>');
+$liked_msg_dom.html("<%= escape_javascript(i18_votes(@comment.reload)) %>");

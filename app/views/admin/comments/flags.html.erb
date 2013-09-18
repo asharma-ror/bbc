@@ -1,0 +1,31 @@
+<%= render :partial => 'admin/shared/site_navigation' %>
+<h3>Flagged Comments</h3>
+<hr>
+<div class="comments list">
+  <% if @flagcomments.empty? %>
+    No comments have been flagged.
+  <% else %>
+    <% @flagcomments.each do |flagcomment| %>
+      <div class="row root_shell" style="width:95%;">
+        <div class="row flag_notice">
+          <div class="j-left">
+      	    <strong>
+      	      <%= flagcomment.flaggers%>
+      	    </strong>
+      	  </div>
+      	  <div class="j-left">
+      	    <%= remove_button_link_to 'Delete flags', destroy_flag_admin_site_comment_path(flagcomment.comment, :site_id => @site),
+            :method => :delete,
+            :confirm => 'Are you sure?',
+            :return_to => request.fullpath %>
+          </div>
+        </div>
+        <div class="row">
+          <%= render :partial => 'admin/comments/comment',
+          :locals => { :show_topic => true, :comment => flagcomment.comment } %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+

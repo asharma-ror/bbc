@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>rspec test commenting</title>
+  <%= stylesheet_link_tag    "api" %>
+  <%= javascript_include_tag "api" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+  <div id="comments"></div>
+  <script type="text/javascript" class="juvia">
+  (function() {
+    var container   = '#comments';
+    var site_key    = '<%=params[:site_key]%>';
+    var topic_key   = '<%=params[:topic_key]%>';
+    var topic_url   = "location.href";
+    var topic_title = document.title || topic_url;
+    var use_my_user = 'true';
+    var logged_in_message = 'please logged in to make comment';
+    <% if params[:guest_view] == "1" %>
+      var username = '';
+      var user_email = '';
+      
+      var user_logged_in = 'false' ;
+    <% else %>
+      var username = 'test';
+      var user_email = 'user@mail.com';
+      var user_logged_in = 'true' ;
+    <% end %>
+    var user_image = '#';
+    
+    var s       = document.createElement('script');
+    s.async     = true;
+    s.type      = 'text/javascript';
+    s.className = 'juvia';
+    s.src = '/api/comments/show_topic.js' +
+      '?container=' + encodeURIComponent(container) +
+      '&site_key=' + encodeURIComponent(site_key) +
+      '&topic_key=' + encodeURIComponent(topic_key) +
+      '&topic_url=' + encodeURIComponent(topic_url) +
+      '&topic_title=' + encodeURIComponent(topic_title) +
+      '&use_my_user=' + encodeURIComponent(use_my_user) +
+      '&user_logged_in=' + encodeURIComponent(user_logged_in) +
+      '&logged_in_message=' + encodeURIComponent(logged_in_message) +
+      '&username=' + encodeURIComponent(username) +
+      '&user_email=' + encodeURIComponent(user_email) +
+      '&user_image=' + encodeURIComponent(user_image);
+    (document.getElementsByTagName('head')[0] ||
+     document.getElementsByTagName('body')[0]).appendChild(s);
+  })();
+  </script>
+
+</body>
+</html>

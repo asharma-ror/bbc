@@ -1,0 +1,14 @@
+<div class="row">
+  <div class="span6">
+    <h4 class="juvia-comment-count-header"><%=total_comments %></h4>
+  </div>
+  <div class="span3 juvia-sort-select">
+     <% if sorting_option %>
+       <select id="juvia-sort-select">
+     	  <option value="<%=sorting_options[:popular]%>"><%= t(:sort_by_most_popular) %></option>
+     	  <option value="<%=sorting_options[:newest]%>"><%= t(:sort_by_newest_first) %></option>
+     	  <option selected="selected" value="<%=sorting_options[:oldest]%>"><%= t(:sort_by_oldest_first) %></option>
+       </select>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+$author_setting = Juvia.$('#juvia-author-setting');
+$email_icon = Juvia.$('#email_icon');
+
+<% if @author.notify_me %>
+  $author_setting.html("<%= escape_javascript(t(:email_notification_on)) %>");
+  $email_icon.html("<i class='icon-envelope'></i>");
+  $author_setting.addClass("turn_on");
+  $author_setting.removeClass("turn_off");
+<% else %>
+  $author_setting.html("<%= escape_javascript(t(:email_notification_off)) %>");
+  $email_icon.html(" ");
+  $author_setting.addClass("turn_off");
+  $author_setting.removeClass("turn_on");
+<% end %>
+
+$email_notification = Juvia.$('.juvia_email_notification');
+$email_notification.html("<div class='span11'><div class='alert fade in'><button data-dismiss='alert' class='close' type='button'>×</button><strong><%= escape_javascript(t(:thanks)) %></strong> <%= escape_javascript(t(:email_notification_success_message)) %></div></div>");
+$email_notification.show();
+$email_notification.fadeOut(5000);

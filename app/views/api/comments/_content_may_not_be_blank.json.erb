@@ -1,0 +1,7 @@
+<%= {
+  :status    => 'ok',
+  :action    => 'ShowFormError',
+  :site_key  => @site_key,
+  :topic_key => @topic_key,
+  :text      => escape_javascript(t(:error_add_comment))
+}.to_json.html_safe %>

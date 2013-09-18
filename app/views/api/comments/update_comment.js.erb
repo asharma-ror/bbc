@@ -1,0 +1,6 @@
+<% comment = @comment%>
+<%= juvia_handle_response(
+  :status         => 'ok',
+  :action         => 'UpdateComment',
+  :comment_id => "#{comment.id.to_s}"
+) %>

@@ -1,0 +1,14 @@
+<% comments = {} %>
+<% @comments.each_with_index do |comment,index| %>
+    <%
+      options = comment_hash(comment, @username, @user_email)
+      comments.merge!({index => options})
+    %>
+<% end %>
+<%= {
+  :status    => 'ok',
+  :action    => 'SortComments',
+  :site_key  => @site_key,
+  :topic_key => @topic_key,
+  :comments  => comments
+}.to_json.html_safe %>

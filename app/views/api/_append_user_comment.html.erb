@@ -1,0 +1,22 @@
+<%comments.visible.to_a.each do |comment|%>
+  <div class="juvia-comment-pure-content well well-small row user-comment-box">
+    <div class="span user-profile-comment">
+      <dl>
+        <dt>
+          <b><%= t(:topic) %>:</b>
+          <% if comment.topic and comment.topic.url %>
+            <%= link_to truncate(comment.topic.url , :length => 60), comment.topic.url+"#comment-box-#{comment.comment_number}" %>
+          <% else %>
+            None
+          <% end %>
+        </dt>
+        <dd class="lead comment-data">
+          <%= render_markdown(comment.content.html_safe) %>
+        </dd>
+        <dd class="juvia-comment-date">
+          <%= comment.created_at.strftime("%m/%d/%Y, %H:%M %p") %>
+        </dd>
+      </dl>
+    </div>
+  </div>
+<%end%>

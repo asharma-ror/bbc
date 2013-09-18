@@ -1,0 +1,10 @@
+<%= render :partial => 'admin/shared/site_navigation' %>
+<h3>Topics </h3>
+<% if @topics.blank? %>
+  <p>This site doesn't have any topics yet.</p>
+<% else %>
+  <div class="topics resources list">
+      <%= render :partial => 'admin/topics/topic', :collection => @topics %>
+      <%= paginate @topics %>
+  </div>
+<% end %>

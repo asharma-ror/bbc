@@ -1,0 +1,19 @@
+<% if (comments = @comments).size > 0 %>
+  <% comments.each_with_index do |comment, index| %>
+    <% 
+      options = comment_hash(comment, @username, @user_email)
+      options.merge!({'action' => 'LoadComment'})
+    %>
+    <%= juvia_handle_load_comment(options) %>
+  <% end %> 
+<% end %>
+Juvia.$('#show_more_comments').attr('data-page', '<%= params[:page].to_i + 1%>');
+
+<% if @comments.total_pages < params[:page].to_i + 1%>
+  Juvia.$('#show_more_comments').hide();
+<% else %>
+  Juvia.$('#show_more_comments').show();
+<% end %>
+Juvia.$(".load_more_contain img").hide();
+<%= juvia_reinstall_behavior %>
+

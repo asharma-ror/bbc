@@ -1,0 +1,39 @@
+<div class="row row-markdown">
+  <div class="span">
+    <%= t(:markdown_help) %>
+    <a href="#markdowncollapse" data-toggle="jcollapse"><%= t(:click_here) %></a>
+  </div>
+</div>  
+<div id="markdowncollapse" class= "markdown_div jcollapse" >
+  <div class="markdown_child_div">
+    <div id="markdown_upper_div">
+      <div class="row">
+        <div class="span pull-right">
+          <a href="#markdowncollapse" data-toggle="jcollapse">X</a>
+        </div>
+      </div>
+      <div class="format_list_div">
+        <h4><%= t(:format_text) %></h4>
+        <p><%= t(:headers) %></p>
+        <pre># <%= t(:h1_header) %><br>## <%= t(:h2_header) %></pre>
+        <p><%= t(:text_styles) %></p>
+        <pre>*<%= t(:for_italic) %>*<br>**<%= t(:for_bold) %>**</pre>
+      </div>
+      <div class="format_list_div">
+        <h4><%= t(:lists) %></h4>
+        <p><%= t(:unordered) %></p>
+        <pre>* <%= t(:item_1) %><br>* <%= t(:item_2) %></pre>
+        <p><%= t(:ordered) %></p>
+        <pre>1. <%= t(:item_1) %><br>2. <%= t(:item_2) %></pre>
+      </div>
+      <div class="format_list_div miscell">
+        <h4><%= t(:miscellaneous) %></h4>
+        <p><%= t(:images) %></p>
+        <pre><%= t(:format) %>: ![Alt Text](url) <br><%= t(:example) %>: ![rdf richard](http://rdfrs.com/assets/richard.png)</pre>
+        <p><%= t(:links) %></p>
+        <pre><%= t(:example) %>: [Google](http://google.com)</pre>
+        <p class="pull-right"><a href="http://daringfireball.net/projects/markdown/basics" target="_blank"><%= t(:more_help_on_markdown_home_page) %></a></p>
+      </div>
+    </div>
+  </div>
+</div>

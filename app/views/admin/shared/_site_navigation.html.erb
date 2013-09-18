@@ -1,0 +1,7 @@
+<div class="search-div">
+  <%= label_tag "Jump to another site: "%>
+  <%= select_tag("site_id", options_from_collection_for_select(@sites, "id", "name",params[:site_id])) %>
+</div>
+<script>
+
+</script>

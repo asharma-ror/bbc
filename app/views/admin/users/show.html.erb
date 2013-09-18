@@ -1,0 +1,8 @@
+<h1>User: <%= @user.email %></h1>
+
+<%= render 'form' %>
+
+<h2>Sites</h2>
+<div class="sites resources list">
+  <%= render :partial => 'admin/sites/site', :collection => @sites %>
+</div>

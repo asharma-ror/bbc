@@ -1,0 +1,10 @@
+<%= {
+  :status    => 'error',
+  :message   => t(:missing_parameter),
+  
+  :action    => 'ShowError',
+  :container => @container,
+  :site_key  => @site_key,
+  :topic_key => @topic_key,
+  :html      => render(:partial => 'api/missing_parameter', :formats => [:html], :locals => { :topic => @topic })
+}.to_json.html_safe %>

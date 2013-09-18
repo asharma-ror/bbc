@@ -1,0 +1,78 @@
+<h2>before comments</h2>
+<div id="comments">
+  <b>Loading Comments...</b></br>
+  <img width="16" height="11" style="margin:0 0 3px 5px" src="data:image/gif;base64,R0lGODlhEAALAPQAAP///z2LqeLt8dvp7u7090GNqz2LqV+fuJ/F1IW2ycrf51aatHWswaXJ14i4ys3h6FmctUCMqniuw+vz9eHs8fb5+meku+Tu8vT4+cfd5bbT3tbm7PH2+AAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCwAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQJCwAAACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQJCwAAACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQJCwAAACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAkLAAAALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkECQsAAAAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAkLAAAALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkECQsAAAAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7AAAAAAAAAAAA" alt="...">
+</div>
+<script type="text/javascript" src="http://localhost:3000/assets/jquery-1.7.1.min.js"></script>
+<link type="text/css" rel="stylesheet" media="screen" href="http://localhost:3000/assets/api.css">
+<script type="text/javascript" src="http://localhost:3000/assets/api.js"></script>
+
+<script type="text/javascript" class="juvia" >
+jQuery(document).ready(function($) {
+
+  var options = {
+    container   : '#comments',
+    site_key    : '9vdtj58u4j4ir74b1bkkbqhlxhcn7l0',
+    topic_key   : 'test',
+    topic_url   : location.href,
+    topic_title : document.title || location.href,
+    include_base: !window.Juvia,
+    include_css : !window.Juvia,
+    restrict_comment_length : 'false',
+    use_my_user : 'true',
+    user_logged_in : 'true',
+    logged_in_message : 'Please <a href="/login">Login</a> to richarddawkins.net to comment',
+    username : 'mk',
+    user_email : 'mk@mailinator.com',
+    user_image : 'http://ddeedjkumnzhr.cloudfront.net/assets/logo-small.png'
+  };
+
+  function makeQueryString(options) {
+    var key, params = [];
+    for (key in options) {
+      params.push(
+        encodeURIComponent(key) +
+        '=' +
+        encodeURIComponent(options[key]));
+    }
+    return params.join('&');
+  }
+
+  function makeApiUrl(options) {
+    // Makes sure that each call generates a unique URL, otherwise
+    // the browser may not actually perform the request.
+    if (!('_juviaRequestCounter' in window)) {
+      window._juviaRequestCounter = 0;
+    }
+    var result =
+      'http://localhost:3000/api/comments/show_topic.js' +
+      '?_c=' + window._juviaRequestCounter +
+      '&' + makeQueryString(options);
+    window._juviaRequestCounter++;
+    return result;
+  }
+
+  function loadCommentScript(src, focusCurrentHash){
+    var s       = document.createElement('script');
+    s.async     = true;
+    s.type      = 'text/javascript';
+    s.className = 'juvia';
+    s.src       = makeApiUrl(options);
+    (document.getElementsByTagName('head')[0] ||
+     document.getElementsByTagName('body')[0]).appendChild(s);
+     s.onload = focusCurrentHash;
+     s.onreadystatechange = function() {
+       if (this.readyState == 'complete') {
+         focusCurrentHash;
+       }
+    }
+  }
+  
+  loadCommentScript('src', focusCurrentHash);
+
+  function focusCurrentHash(){ 
+    window.location.hash = window.location.hash.replace('#', '');
+  }
+  
+});
+</script>

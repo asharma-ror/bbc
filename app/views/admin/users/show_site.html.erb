@@ -1,0 +1,25 @@
+<h1>Assign site to : <%= @user.email %></h1>
+<%= render 'site_assign' %>
+
+<h2>Sites as moderator</h2>
+
+<div class="sites resources list">
+<% @sites.each do |site| %>	
+  <%= div_for(site, :class => 'item container') do %>
+  <div class="row">
+    <div class="col_8 identity_column">
+      <%= small_identity_tag(:site, site.name, [:admin, site]) %>
+    </div>
+    <div class="col_3 last info_column">
+      <%= site.topics.size %> topics,
+      <%= site.comments.size %> comments
+    </div>
+    <div class="col_1 last info_column">
+      <%= danger_button_link_to 'Unassign', unassign_site_admin_user_path(@user, :site_id => site.id),
+        :method => :delete,
+        :confirm => 'Are you sure?' %>
+    </div>
+  </div>
+  <% end %>
+<%end%>
+</div>

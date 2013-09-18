@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  </head>
+  <body>
+    <%= @child_comment.author_name || 'Anonymous' %> replied to your comment on "<%= @child_comment.topic.title.to_s %>": <br/> <br/>
+
+    <%= BlueCloth.new(@child_comment.content, :escape_html => false, :strict_mode => true).to_html.html_safe %> <br/> <br/>
+
+    <a href="<%= @child_comment.permalink(@child_comment.topic.url.to_s) %>">Link to comment</a> <br/> <br/>
+
+  </body>
+</html>

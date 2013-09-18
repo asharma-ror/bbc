@@ -1,0 +1,28 @@
+Juvia.total_pages = <%= @comments.total_pages %>;
+
+if(Juvia.total_pages > 1){
+  Juvia.$('#show_more_comments').show();
+}
+
+<% if @perma_link_comment.present? %>
+  <% 
+    options = comment_hash(@perma_link_comment, @username, @user_email, {:topic_url => @topic.url })
+    options.merge!({'action' => 'LoadComment', 'perma_link_comment_id' => @perma_link_comment.comment_number, 'perma_link_comment_box' => 'true'})
+  %>
+  <%= juvia_handle_load_comment(options) %>
+<% end %>
+
+<% if (comments = @comments).size > 0 %>
+  <% comments.each_with_index do |comment, index| %>
+    <% 
+      options = comment_hash(comment, @username, @user_email, {:topic_url => @topic.url})
+      options.merge!({'action' => 'LoadComment', 'perma_link_comment_id' => @perma_link_comment.blank? ? "" : @perma_link_comment.comment_number, 'perma_link_comment_box' => 'false'})
+    %>
+    <%= juvia_handle_load_comment(options) %>
+  <% end %>
+<% end %>
+<%= juvia_reinstall_behavior %>
+
+<% if @perma_link_comment.present? %>
+  window.location = "#comment-box-<%= @perma_link_comment.comment_number.to_s %>";
+<% end %>

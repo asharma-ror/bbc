@@ -1,0 +1,1257 @@
+// -*- Mode: SCSS; tab-width: 8; indent-tabs-mode: true; c-basic-offset: 8 -*-
+
+var Juvia;	
+if (!Juvia) {
+	Juvia = {
+    user_logged_in: false,
+    restrict_comment_length: false,
+    sorting_order: 'oldest',
+    current_page: 1,
+    total_pages: 1,
+    site_key: '',
+    topic_key: '',
+    topic_url: '',
+    topic_title: '',
+    username: '',
+    user_email: '',
+    use_my_user: 'false'
+	};
+}
+
+(function(Juvia) {
+  var RawDeflate;
+  <%= File.read("#{Rails.root}/app/assets/javascripts/jquery-1.7.1.min.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/jquery.delayed-observer.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/jquery.example.min.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/rawdeflate.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/base64.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/bootstrap_juvia_tooltip.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/juvia-bootstrap-collapse.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/juvia-bootstrap-limit.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/jquery.cookie.js").html_safe %>
+  <%= File.read("#{Rails.root}/app/assets/javascripts/markdown.js").html_safe %>
+  
+	var $ = Juvia.$ = window.jQuery.noConflict(true);
+  
+  Juvia.set_cookie = function(the_cookie, the_value, options){
+    $.cookie(the_cookie, the_value, options);
+  }
+  
+  Juvia.get_cookie = function(the_cookie){
+    return $.cookie(the_cookie);
+  }
+  
+  Juvia.remove_cookie = function(the_cookie){
+    $.removeCookie(the_cookie);
+    $.removeCookie(the_cookie, { path: '/' });
+  }
+
+  Juvia.reqLoadComment = function(){
+    var self = this;
+    var options = {
+          site_key     : self.site_key,
+          topic_key    : self.topic_key,
+          topic_url    : self.topic_url,
+          topic_title  : self.topic_title,
+          sorting_order: self.sorting_order,
+          username     : self.username,
+          user_email  : self.user_email,
+          restrict_comment_length: self.restrict_comment_length,
+          use_my_user: self.use_my_user,
+          user_logged_in: self.user_logged_in
+      };
+
+      function makeQueryString(options) {
+          var key, params = [];
+          for (key in options) {
+              params.push(
+                  encodeURIComponent(key) +
+                  '=' +
+                  encodeURIComponent(options[key]));
+          }
+          return params.join('&');
+      }
+
+      function makeApiUrl(options) {
+          // Makes sure that each call generates a unique URL, otherwise
+          // the browser may not actually perform the request.
+          if (!('_juviaRequestCounter' in window)) {
+              window._juviaRequestCounter = 0;
+          }
+
+          var result =
+              '<%= request.protocol %><%= request.host_with_port %>/api/load_comments.js' +
+              '?_c=' + window._juviaRequestCounter +
+              '&' + makeQueryString(options);
+          window._juviaRequestCounter++;
+          return result;
+      }
+
+
+    var s       = document.createElement('script');
+    s.async     = true;
+    s.type      = 'text/javascript';
+    s.className = 'juvia';
+    s.src       = makeApiUrl(options);
+    (document.getElementsByTagName('head')[0] ||
+     document.getElementsByTagName('body')[0]).appendChild(s);
+
+
+
+  }
+
+	
+	Juvia.reinstallBehavior = function() {
+		var self = this;
+
+		if (!$(document.body).hasClass('juvia-installed-behavior')) {
+			$(document.body).addClass('juvia-installed-behavior');
+			$(document.body).bind('mousedown touchdown', function(event) {
+				if (!$(event.target).hasClass('.juvia-help-content')
+				 && $(event.target).closest('.juvia-help-content').length == 0) {
+					$('.juvia-help-content').hide();
+				}
+			});
+		}
+		
+        
+        $(".juvia-comment-editable-content:not(juvia-installed-behavior)").each(function() {
+          if(self.user_logged_in){
+		    var $this = $(this);
+		    $this.addClass('juvia-installed-behavior');
+		    $this.bind('dblclick', function(){
+              self.editComment(this);
+            });
+          }
+        });
+        
+        $('.juvia-edit-to-comment a:not(.juvia-installed-behavior)').each(function() {
+           if(self.user_logged_in){
+		    var $this = $(this);
+		    $this.addClass('juvia-installed-behavior');
+		    $this.bind('click', function(){
+              $(this).closest('.juvia-comment-content').find('.juvia-comment-editable-content').dblclick();
+              //self.editComment(this);
+            });
+          }
+		});
+		
+		$('.juvia-container:not(.juvia-installed-behavior)').each(function() {
+			var $this = $(this);
+			$this.addClass('juvia-installed-behavior');
+			
+			var addCommentForm = $('.juvia-add-comment-form', this);
+			
+			$('input[name=author_name]', addCommentForm).example('Your name (optional)',
+				{ className: 'juvia-example-text' });
+			$('input[name=author_email]', addCommentForm).example('Your email (optional)',
+				{ className: 'juvia-example-text' });
+			
+			/* Our submit handler is called before jquery.example has cleared the
+			 * example texts. We work around this by calling our actual
+			 * submit handler a short while later.
+			 */
+			addCommentForm.bind('submit', function(event) {
+				setTimeout(function() {
+					self.submitComment(event);
+				}, 1);
+			});
+			
+			$('.juvia-help', this).bind('click', function() {
+				var $this = $(this);
+				var content = $this.parent().find('.juvia-help-content');
+				var offset = $this.position();
+				content.css({
+					left: offset.left + 'px',
+					top: (offset.top + $this.outerHeight() + 8) + 'px'
+				});
+				content.show();
+			});
+
+			var textarea = $('.juvia-textarea-field textarea', addCommentForm);
+			textarea.delayedObserver(function() {
+				self.previewComment(this);
+			});
+			
+			var errorDiv = $('.juvia-form-actions .juvia-error', addCommentForm);
+			addCommentForm.bind('reset', function() {
+				errorDiv.hide();
+				// Repopulate example texts in input fields.
+				setTimeout(function() {
+					$('input', addCommentForm).blur();
+				}, 1);
+			});
+		});
+
+        $('.juvia-sort-select select:not(.juvia-installed-behavior)').each(function() {
+			var $this = $(this);
+			$this.addClass('juvia-installed-behavior');
+			$this.bind('change', function(event) {
+				self.sortComments(event, this);
+			});
+		});
+
+		$('.rdf-reply-to-comment:not(.juvia-installed-behavior)').each(function() {
+			var $this = $(this);
+			$this.addClass('juvia-installed-behavior');
+			$this.bind('click', function() {
+				var comment = $(this).closest('.juvia-comment');
+				self.replyToComment(comment);
+			});
+		});
+    
+		$('.juvia-preview a:not(.juvia-installed-behavior)').each(function() {
+				    var $this = $(this);
+				    $this.addClass('juvia-installed-behavior');
+		    $this.juviatooltip({html: true});
+		});
+    
+
+		$('.juvia-vote-to-comment').each(function() {
+			var $this = $(this);
+			if(!($this.hasClass("juvia-installed-behavior"))){
+			  $this.addClass('juvia-installed-behavior');
+			  $this.bind('click', function(event) {
+				  self.voteComment(event, this);
+			  });
+			}
+		});
+
+		$('.juvia-vote-to-topic').each(function() {
+			var $this = $(this);
+			if(!($this.hasClass("juvia-installed-behavior"))){
+			  $this.addClass('juvia-installed-behavior');
+			  $this.bind('click', function(event) {
+				  self.voteTopic(event, this);
+			  });
+			}
+		});
+
+		$('flagcomment:not(.juvia-installed-behavior)').each(function() {
+			var $this = $(this);
+			$this.addClass('juvia-installed-behavior');
+			$this.bind('click', function(event) {
+            if(confirm('Are you sure you wish to flag this comment?')){
+                  self.reportComment(event, this);
+                }else{
+                  return false;
+                }			
+			});
+		});
+
+		$('.juvia-comment-function').each(function() {
+			var $this = $(this);
+			if(!($this.hasClass("juvia-installed-behavior"))){
+			  $this.addClass('juvia-installed-behavior');
+			  $this.bind({
+                mouseenter: function(e) {
+                  $('.blink_text',$this).each(function() {
+                  	$(this).css("visibility", "visible");
+                  });
+                },
+                mouseleave: function(e) {
+                  $('.blink_text',$this).each(function() {
+                  	$(this).css("visibility", "hidden");
+                  });
+                }
+			  });
+			}
+		});
+
+        $('.juvia-avatar img:not(.juvia-installed-behavior)').each(function(index){
+          var $this = $(this);
+          $this.addClass('juvia-installed-behavior');
+		  $this.bind('click', function() {
+		    window.location = "/users?juvia=true&email=" + $this.data('user-email');
+		  });  
+        });
+		
+        $('.collapse_link_class:not(.juvia-installed-behavior)').each(function(){
+          var $this = $(this);
+          $this.addClass('juvia-installed-behavior');
+          $this.bind('click', function() {
+            if( $('#' +this.dataset.divid).hasClass('in')){
+              $("#comment_sign_"+this.dataset.divid).addClass("icon-plus");
+              $("#comment_sign_"+this.dataset.divid).removeClass("icon-minus");
+            }else{
+              $("#comment_sign_"+this.dataset.divid).addClass("icon-minus");
+              $("#comment_sign_"+this.dataset.divid).removeClass("icon-plus");
+            }
+           });  
+        });
+      }
+// END of reinstallBehavior
+
+  Juvia.editComment = function(this_obj){
+    var self = this;
+    
+    self.uniq_edit_id = self.uniq_edit_id || 123;
+    
+    self.uniq_edit_id = self.uniq_edit_id + 1;
+    
+    if($(this_obj).find('textarea').length > 0){
+      return;
+    }
+    
+    var $textarea = $('<textarea class="juvia-text-area" />');
+
+    $textarea.delayedObserver(function() {
+      self.previewEditComment(this);
+    });
+
+    var $buttons = $('<div class="edit-buttons"><button class="btn update_comment" type="button">OK</button><button class="btn" type="button" onclick="Juvia.resumeEdit($(this).parent().parent())">Cancel</button></div>');
+    var edit_preview_help = $("<div class='row row-markdown'><div class='span'>Help with formatting  <a href='#markdowncollapse_"+self.uniq_edit_id+"'data-toggle='jcollapse'>click here</a></div></div><div id='markdowncollapse_"+ self.uniq_edit_id +"'class='edit_markdown_div jcollapse'><div class='edit_markdown_child_div'><div class='edit_markdown_upper_div'><div class='row'><div class='span pull-right'><a href='#markdowncollapse_"+ self.uniq_edit_id +"'data-toggle='jcollapse'>X</a></div></div><div class='format_list_div'><h4>Format Text</h4><p>Headers</p><pre>#H1 Header<br>##H2 Header</pre><p>Text styles</p><pre>*For italic*<br>**For bold**</pre></div><div class='format_list_div'><h4>Lists</h4><p>Unordered</p><pre>*Item 1<br>*Item 2</pre><p>Ordered</p><pre>1.Item 1<br>2.Item 2</pre></div><div class='format_list_div edit_miscell'><h4>Miscellaneous</h4><p>Images</p><pre>Format:![Alt Text](url)<br>Example: ![rdf richard](http://rdfrs.com/assets/richard.png)</pre><p>Links</p><pre>Example: [Google](http://google.com)</pre><p class='pull-right'><a href='http://daringfireball.net/projects/markdown/basics'target='_blank'>More help on markdown home page</a></p></div></div></div></div>");
+    var htmlContent = $(this_obj).html(); 
+    var markdwonContent = toMarkdown(htmlContent);
+    $textarea.val(markdwonContent);
+    var $edit_dom = $('<div></div>');
+    $edit_dom.addClass("juvia-preview-content margin-edit");
+    $edit_dom.html(htmlContent);
+    $(this_obj).html("<br/>").append($textarea).append($buttons).append($edit_dom).append(edit_preview_help);
+    
+    $buttons.find(".update_comment").bind("click", function(){
+      self.updateComment(this);
+    });
+    
+    $textarea.focus();
+  };
+  
+  Juvia.updateComment = function(this_obj){
+    var $this = $(this_obj);
+    var $comment_input = $this.parent().parent().find('textarea');
+    var comment_id = $this.closest(".juvia-data").attr("id");
+    comment_id = comment_id.replace("divid", "");
+    var form = $(".juvia-add-comment-form");
+	var $container = $(".juvia-add-comment-form").closest('.juvia-container');
+    this.loadScript('/api/update_comment', {
+      site_key    : $container.data('site-key'),
+      restrict_comment_length: this.restrict_comment_length,
+      comment_id: comment_id,
+      content     : this.compress($comment_input.val())
+    });
+  };
+  
+  Juvia.handleUpdateComment = function(options){
+	var self = this;
+    if(options.status === "ok"){
+      self.resumeEdit($("#divid" + options.comment_id).find(".juvia-comment-pure-content"));
+    }else{
+      alert("something went wrong");
+    }
+  };
+  
+  Juvia.previewEditComment = function(this_obj) {
+    var $textarea = $(this_obj);
+    var input_value = $textarea.val();
+    if(this.restrict_comment_length && input_value.length > 140){
+      input_value = input_value.substring(0, 140);
+    }
+    var html_output = markdown.toHTML(input_value);
+    var $preview_dom = $textarea.parent().find(".juvia-preview-content");
+    $preview_dom.html(html_output).show();
+    return false;
+  };
+  
+  Juvia.resumeEdit = function($main_edit){
+    var $edit_dom = $main_edit.find(".juvia-preview-content");
+    var original_html = $edit_dom.html();
+    $main_edit.html(original_html);
+    return false;
+  };
+  
+  
+  
+  
+  
+      Juvia.showMoreUserComments = function(this_obj){
+         var page_num = this.current_page;
+         page_num = page_num + 1;
+         this.current_page = page_num;
+	       $(".load_more_contain img").show();
+	       var $this = $(this_obj);
+	       $this.hide();
+	       this.loadJsScript('/api/append_user_comments', {
+			site_key    : $this.attr('data-site-key'),
+			username   : $this.attr('data-user-name'),
+			user_email : $this.attr('data-user-email'),
+			container    : '#show_user_comments',
+		        page  	    :  page_num
+		});
+      }
+      
+      Juvia.showMoreComments = function(this_obj){
+         var page_num = this.current_page;
+         page_num = page_num + 1;
+         this.current_page = page_num;
+         var current_sorting_order = this.sorting_order;
+	       $(".load_more_contain img").show();
+	       var $this = $(this_obj);
+	       $this.hide();
+	       var form = $("#juvia-sort-select");
+	       var $container = $(form).closest('.juvia-container');
+	       this.loadJsScript('/api/show_comments', {
+			site_key    : $container.data('site-key'),
+			topic_key  : $container.data('topic-key'),
+			topic_url   : $container.data('topic-url'),
+			page           : page_num,
+      sorting_order : current_sorting_order
+		});
+      }
+	
+      Juvia.findContainer = function(options) {
+		return $('.juvia-container[data-site-key="' +
+			options.site_key +
+			'"][data-topic-key="' +
+			options.topic_key +
+			'"]');
+	}
+	
+	Juvia.showFormError = function(container, message) {
+		var div = $('.juvia-form-actions .juvia-error', container);
+		if (message == undefined || message == null || message == '') {
+			div.hide();
+		} else {
+			div.text(message).show();
+		}
+	}
+	
+	Juvia.loadScript = function(path, options) {
+		var url = '<%= escape_javascript(request.protocol + request.host_with_port) %>';
+		url += path;
+		
+		if (this.supportsCors) {
+			url += '.json';
+			$.post(url, options, function(response) {
+				Juvia.handleResponse(response);
+			}, 'json');
+		} else {
+			url += '.js';
+			
+			// Makes sure that each loadScript() call generates a unique URL,
+			// otherwise the browser may not actually perform the request.
+			url += '?_c=' + window._juviaRequestCounter;
+			window._juviaRequestCounter++;
+			
+			var paramString = $.param(options);
+			if (paramString.length > 0) {
+				url += '&';
+				url += paramString;
+			}
+			
+			$('script.juvia').remove();
+			
+			var s       = document.createElement('script');
+			s.async     = true;
+			s.type      = 'text/javascript';
+			s.className = 'juvia';
+			s.src       = url;
+			(document.getElementsByTagName('head')[0] ||
+			 document.getElementsByTagName('body')[0]).appendChild(s);
+		}
+	}
+
+	Juvia.loadJsScript = function(path, options) {
+		var url = '<%= escape_javascript(request.protocol + request.host_with_port) %>';
+		url += path;
+		url += '.js';
+		
+		// Makes sure that each loadScript() call generates a unique URL,
+		// otherwise the browser may not actually perform the request.
+		url += '?_c=' + window._juviaRequestCounter;
+		window._juviaRequestCounter++;
+		
+		var paramString = $.param(options);
+		if (paramString.length > 0) {
+			url += '&';
+			url += paramString;
+		}
+		$('script.juvia').remove();
+		
+		var s       = document.createElement('script');
+		s.async     = true;
+		s.type      = 'text/javascript';
+		s.className = 'juvia';
+		s.src       = url;
+		(document.getElementsByTagName('head')[0] ||
+		 document.getElementsByTagName('body')[0]).appendChild(s);
+
+	}
+	
+	Juvia.handleResponse = function(response) {
+		this['handle' + response.action](response);
+		this.reinstallBehavior();
+	}
+
+	Juvia.handleResponsOffCallback = function(response) {
+		this['handle' + response.action](response);
+	}
+	
+	Juvia.handleLoadTopic = function(options) {
+		var $container = $(options.container);
+		$container.html(options.html);
+		this.restoreCommentBox($container.find('> .juvia-container'));
+		if (options.css && $('style.juvia').length == 0) {
+			var style = document.createElement('style');
+            var extend_css = '.juvia-container [class^="icon-"],.juvia-container [class*=" icon-"] {background-image: url(<%= escape_javascript(request.protocol + request.host_with_port) + "/assets/glyphicons-halflings.png" %>);}';
+            options.css += extend_css ;
+			var rules = document.createTextNode(options.css);
+			style.type = 'text/css';
+			style.className = 'juvia';
+			if (style.styleSheet) {
+				style.styleSheet.cssText = rules.nodeValue;
+			} else {
+				style.appendChild(rules);
+			}
+			$(style).appendTo(document.head || $('head')[0] || document.body);
+		}
+	}
+  
+  Juvia.handleAppendUserComment = function(options) { 
+      var $container = $(options.container);
+      $container.append(options.html);
+  }
+  
+  Juvia.handleLoadUserComment = function(options) { 
+    var $container = $(options.container);
+    $container.html(options.html);
+    this.restoreCommentBox($container.find('> .juvia-container'));
+    if (options.css && $('style.juvia').length == 0) {
+      var style = document.createElement('style');
+      var rules = document.createTextNode(options.css);
+      style.type = 'text/css';
+      style.className = 'juvia';
+      if (style.styleSheet) {
+        style.styleSheet.cssText = rules.nodeValue;
+      } else {
+        style.appendChild(rules);
+      }
+      $(style).appendTo(document.head || $('head')[0] || document.body);
+    }
+  }
+
+	Juvia.handleLoadComment = function(options) {
+		var dom_ele = this.rdf_comment_box(options);
+		this.appendComment(dom_ele);
+	}
+	
+	Juvia.handleAddComment = function(options) {
+		var container = this.findContainer(options);
+		var comments = $('.juvia-comments', container);
+		
+		var comment_obj = options.comment_option;
+		var dom_ele = this.rdf_comment_box(comment_obj);
+		var comment = $(dom_ele);
+		if (comments.hasClass('juvia-no-comments')) {
+			comments.removeClass('juvia-no-comments');
+			comments.html('');
+		}
+		this.prependComment(comment);
+		$('.juvia-preview-empty', container).show();
+		$('.juvia-preview-content', container).hide();
+		
+		container.find('form')[0].reset();
+		this.setSubmitting(container, false);
+		this.saveCommentBox(container);
+		this.smoothlyScrollTo(comment.offset().top - 20);
+		comment.hide().fadeIn(2000);
+	}
+	
+	Juvia.handlePreviewComment = function(options) {
+		var container = this.findContainer(options);
+		var preview = $('.juvia-preview', container);
+		this.showFormError(container, undefined);
+		if (options.html.length == 0) {
+			preview.find('.juvia-preview-empty').show();
+			preview.find('.juvia-preview-content').hide();
+		} else {
+			preview.find('.juvia-preview-empty').hide();
+			preview.find('.juvia-preview-content').html(options.html).show();
+		}
+	}
+	
+	Juvia.handleShowError = function(options) {
+		if (options.container) {
+			var $container = $(options.container);
+			$container.html(options.html);
+		} else if (options.site_key && options.topic_key) {
+			var container = this.findContainer(options);
+			container.parent().html(options.html);
+		} else if (options.message) {
+			alert(options.message);
+		} else if (options.html) {
+			// Convert HTML to text and display it in a dialog box.
+			var div = $('<div></div>');
+			div.html(options.html);
+			alert($.trim(div.text()));
+		} else {
+			alert("Juvia unknown error");
+		}
+	}
+	
+	Juvia.handleShowFormError = function(options) {
+		var container = this.findContainer(options);
+		this.showFormError(container, options.text);
+		this.setSubmitting(container, false);
+	}
+
+	Juvia.handleSortComments = function(options) {
+    if(this.total_pages > 1){
+      $('#show_more_comments').show();
+    }
+    $(".load_more_contain img").hide();
+		juvia_cls = this;
+		var container = juvia_cls.findContainer(options);
+		$('#juvia-comments-box').html(""); 
+        $.each( options.comments, function(k, v){
+          juvia_cls.handleLoadComment(options.comments[k]);
+        });
+	}
+
+	Juvia.handleReportComment = function(options) {
+		if(options.status == "ok"){
+		  alert("Thank you. This comment has been flagged for moderator attention. ");
+		  var tempFlagsElement = $('#flag-'+options.comment_id);
+		  tempFlagsElement.html( " " + options.flagged);
+		  var flag_comment = tempFlagsElement.parent();
+		  flag_comment.removeClass('blink_text');
+		  flag_comment.css("visibility","visible");
+		}else{
+		  alert("Something went wrong!");
+		}
+	}
+	
+	Juvia.submitComment = function(event) {
+		var form = event.target;
+		var $container = $(form).closest('.juvia-container');
+		this.setSubmitting($container, true);
+		this.saveCommentBox($container);
+		this.loadScript('/api/add_comment', {
+			site_key    : $container.data('site-key'),
+			topic_key   : $container.data('topic-key'),
+			topic_title : $container.data('topic-title'),
+			topic_url   : $container.data('topic-url'),
+			restrict_comment_length: this.restrict_comment_length,
+			author_name : $('input[name="author_name"]', form).val(),
+			author_email: $('input[name="author_email"]', form).val(),
+			content     : this.compress($('textarea[name="content"]', form).val())
+		});
+	}
+
+	Juvia.sortComments = function(event, this_obj) {
+    $('#show_more_comments').hide();
+    this.sorting_order = this_obj.value;
+    this.set_cookie('sorting_order', this_obj.value, { path: '/' });
+    this.current_page = 1;
+		var form = event.target;
+		var $container = $(form).closest('.juvia-container');    
+		this.loadScript('/api/sort_comment', {
+			site_key    : $container.data('site-key'),
+			topic_key   : $container.data('topic-key'),
+			topic_title : $container.data('topic-title'),
+			topic_url   : $container.data('topic-url'),
+			author_name : $('input[name="author_name"]', $container).val(),
+			author_email: $('input[name="author_email"]', $container).val(),
+			sort     : this_obj.value
+		});
+    $("#juvia-comments-box").html('');
+    $(".load_more_contain img").show();
+	}
+
+	Juvia.voteComment = function(event, this_obj) {
+		var $this = $(this_obj);
+		var form = event.target;
+		var $container = $(form).closest('.juvia-container');
+		var up_down = 1;
+		var $vote_icon = $this.find("i");
+		var $vote_text = $this.find("span");
+		if ($vote_icon.hasClass('icon-thumbs-up')){
+			$vote_icon.removeClass('icon-thumbs-up');
+			$vote_icon.addClass('icon-thumbs-down');
+			$vote_text.html(" Liked");
+			up_down = 1
+		}else{
+			$vote_icon.removeClass('icon-thumbs-down');
+			$vote_icon.addClass('icon-thumbs-up');
+			$vote_text.html(" Like");
+			up_down = 0
+		}
+		var a_name = $('input[name="author_name"]', $container).val();
+		var a_email = $('input[name="author_email"]', $container).val();
+		var opt1 = {
+			site_key    : $container.data('site-key'),
+			topic_key   : $container.data('topic-key'),
+			topic_url   : $container.data('topic-url'),
+			comment_key : $this.data('comment-id'),
+			vote     : up_down
+		}
+		var opt2 = {}
+		if(typeof a_email != "undefined"){
+			opt2 = {
+				author_name : a_name, 
+				author_email: a_email
+			}
+		}
+		this.loadJsScript('/api/post/vote', $.extend(opt1, opt2));
+	}
+
+	Juvia.voteTopic = function(event, this_obj) {
+		var $this = $(this_obj);
+		var form = event.target;
+		var $container = $(form).closest('.juvia-container');
+		
+		var $unlike = $('#vote_for_unlike');
+		var $unlike_text = $('#vote_for_unlike').find("span");
+		
+		var $like = $('#vote_for_like');
+		var $like_text = $('#vote_for_like').find("span");
+		
+		var $vote_icon = $this.find("i");
+		var $vote_text = $this.find("span");
+		if ($vote_icon.hasClass('icon-thumbs-up')){
+			if ($this.hasClass('votes-up-active')){
+		        up_down = 0;
+		        $this.removeClass('votes-up-active');
+		        $vote_text.html(" Like");
+			}else{
+		        up_down = 1;
+		        if($unlike.hasClass('votes-down-active')){
+		           $unlike.removeClass('votes-down-active');
+		           $unlike_text.html(" Unlike");
+		        }else{
+		           $this.addClass('votes-up-active');
+		           $vote_text.html(" Liked");
+		        }
+			}
+		}else{
+			if ($this.hasClass('votes-down-active')){
+		        up_down = 1;
+		        $this.removeClass('votes-down-active');
+		        $vote_text.html(" Unlike");
+			}else{
+		        up_down = 0;
+		        if($like.hasClass('votes-up-active')){
+		           $like.removeClass('votes-up-active');
+		           $like_text.html(" Like");
+		        }else{
+		           $this.addClass('votes-down-active');
+		           $vote_text.html(" Unliked");
+		        }
+			}
+		}
+		var a_name = $('input[name="author_name"]', $container).val();
+		var a_email = $('input[name="author_email"]', $container).val();
+		var opt1 = {
+			site_key    : $container.data('site-key'),
+			topic_key   : $container.data('topic-key'),
+			topic_url   : $container.data('topic-url'),
+			topic_title : $container.data('topic-title'),
+			vote     : up_down
+		}
+		var opt2 = {}
+		if(typeof a_email != "undefined"){
+			opt2 = {
+				author_name : a_name, 
+				author_email: a_email
+			}
+		}
+		this.loadJsScript('/api/topic/vote', $.extend(opt1, opt2));
+	}
+	
+	Juvia.reportComment = function(event, this_obj) {
+        var $this = $(this_obj);
+		var form = event.target;
+		var $container = $(form).closest('.juvia-container');
+		this.loadScript('/api/post/flag', {
+			site_key    : $container.data('site-key'),
+			topic_key   : $container.data('topic-key'),
+			topic_title : $container.data('topic-title'),
+			topic_url   : $container.data('topic-url'),
+			comment_key : $this.data('comment-id'),
+			author_name : $('input[name="author_name"]', $container).val(),
+			author_email: $('input[name="author_email"]', $container).val()
+		});
+		return false;
+	}
+
+	Juvia.previewComment = function(formElement) {
+		var $container = $(formElement).closest('.juvia-container');
+		this.saveCommentBox($container);
+		
+		var input_value = $('textarea[name="content"]', $container).val();
+        if(this.restrict_comment_length && input_value.length > 140){
+          input_value = input_value.substring(0, 140);
+        }
+		var html_output = markdown.toHTML(input_value);
+		var preview = $('.juvia-preview', $container);
+		this.showFormError($container, undefined);
+		if (html_output.length == 0) {
+			preview.find('.juvia-preview-empty').show();
+			preview.find('.juvia-preview-content').hide();
+		} else {
+			preview.find('.juvia-preview-empty').hide();
+			preview.find('.juvia-preview-content').html(html_output).show();
+		}
+		
+		return false;
+	}
+	
+	Juvia.setSubmitting = function(container, val) {
+		if (val) {
+			container.find('.juvia-submit-button').hide();
+			container.find('.juvia-submitting-button').show();
+		} else {
+			container.find('.juvia-submit-button').show();
+			container.find('.juvia-submitting-button').hide();
+		}
+	}
+
+	Juvia.replyToComment = function($comment) {
+		var $container = $comment.closest('.juvia-container');
+		var text = $('.juvia-comment-pure-content', $comment).text();
+		var lines = text.split("\n");
+		var i;
+		for (i = 0; i < lines.length; i++) {
+			lines[i] = '> ' +lines[i];
+		}
+		var $textarea  = $('textarea', $container);
+		//var authorName = $('input[name="author_name"]', $container).val(); 
+		var authorName = $.trim($('.juvia-author-name', $comment).text());
+		var newContent = "*In reply to [#"+$comment.data('comment-number')+"](#"+$comment.attr('id')+"') by "+authorName+":*\n" + lines.join("\n");
+		if ($textarea.val() != '') {
+			newContent += "\n\n";
+			newContent += $textarea.val();
+		}
+		
+		$textarea.val(newContent);
+		this.smoothlyScrollTo($textarea.offset().top);
+		$textarea.focus();
+	}
+
+	/* The browser does not save the content of the Juvia comments box when
+	 * the user reloads the page. In order to prevent data loss we implement
+	 * our own saving capabilities. The text box is saved into sessionStorage
+	 * with a key that depends on the site key and the topic key.
+	 */
+
+	Juvia.getTextBoxStorageKey = function(container) {
+		return 'juvia_text/' +
+			container.data('site-key') + '/' +
+			container.data('topic-key');
+	}
+
+	Juvia.clearAllTextBoxStorage = function(container) {
+		var i, key, keysToRemove = [];
+		for (key in window.sessionStorage) {
+			if (key.match(/^juvia_text\//)) {
+				keysToRemove.push(key);
+			}
+		}
+		for (i = 0; i < keysToRemove.length; i++) {
+			window.sessionStorage.removeItem(keysToRemove[i]);
+		}
+	}
+
+	Juvia.saveCommentBox = function(container) {
+		if (window.sessionStorage) {
+			var key = this.getTextBoxStorageKey(container);
+			var value = $('textarea[name="content"]', container).val();
+			if (value == '') {
+				window.sessionStorage.removeItem(key);
+			} else {
+				try {
+					window.sessionStorage.setItem(key, value);
+				} catch (e) {
+					if (console) {
+						console.warn(e);
+					}
+					/* It looks like we're hitting the quota limit.
+					 * Try to free up some space and try again.
+					 *
+					 * Even though the standard says that it's supposed to
+					 * throw QuotaExceededError, browsers currently don't
+					 * actually do that. Instead they throw some kind of
+					 * internal exception type. So we don't bother checking
+					 * for the exception type.
+					 * http://stackoverflow.com/questions/3027142/calculating-usage-of-localstorage-space
+					 */
+					this.clearAllTextBoxStorage(container);
+					try {
+						window.sessionStorage.setItem(key, value);
+					} catch (e) {
+						console.warn(e);
+					}
+				}
+			}
+		}
+	}
+
+	Juvia.restoreCommentBox = function(container) {
+		if (window.sessionStorage) {
+			var key = this.getTextBoxStorageKey(container);
+			var value = window.sessionStorage.getItem(key);
+			if (value !== undefined && value !== null) {
+				var textarea = $('textarea[name="content"]', container);
+				textarea.val(value);
+				this.previewComment(textarea);
+			}
+		}
+	}
+	
+	
+	Juvia.virtualAnimate = function(options) {
+		var options = $.extend({
+			duration: 1000
+		}, options || {});
+		var animation_start = this.now();
+		var animation_end = this.now() + options.duration;
+		var interval = animation_end - animation_start;
+		this._virtualAnimate_step(animation_start, animation_end, interval, options);
+	}
+
+	Juvia._virtualAnimate_step = function(animation_start, animation_end, interval, options) {
+		var self = this;
+		var now = new Date();
+		var progress = (now - animation_start) / interval;
+		if (progress > 1) {
+			progress = 1;
+		}
+		progress = (1 + Math.sin(-Math.PI / 2 + progress * Math.PI)) / 2;
+		options.step(progress);
+		if (now < animation_end) {
+			setTimeout(function() {
+				self._virtualAnimate_step(animation_start,
+					animation_end, interval, options);
+			}, 15);
+		} else {
+			options.step(1);
+			if (options.finish) {
+				options.finish();
+			}
+		}
+	}
+	
+	Juvia.smoothlyScrollTo = function(top) {
+		var self = this;
+		var $document = $(document);
+		var current = $document.scrollTop();
+		this.virtualAnimate({
+			duration: 300,
+			step: function(x) {
+				$document.scrollTop(Math.floor(
+					top + (1 - x) * (current - top)
+				));
+			},
+			finish: function() {
+				self.setScrollTop(top);
+			}
+		});
+	}
+	
+	Juvia.setScrollTop = function(top, element) {
+		// Browsers don't always scroll properly so work around
+		// this with a few timers.
+		var self = this;
+		element = element || $(document);
+		element = $(element);
+		element.scrollTop(top);
+		setTimeout(function() {
+			element.scrollTop(top);
+		}, 1);
+		setTimeout(function() {
+			element.scrollTop(top);
+		}, 20);
+	}
+	
+	if (Date.now) {
+		Juvia.now = Date.now;
+	} else {
+		Juvia.now = function() {
+			return new Date().getTime();
+		}
+	}
+	
+	/** UTF-8 encodes the given string. */
+	Juvia.encodeUtf8 = function(string) {
+		string = string.replace(/\r\n/g, "\n");
+		var utftext = "";
+		
+		for (var n = 0; n < string.length; n++) {
+			var c = string.charCodeAt(n);
+			
+			if (c < 128) {
+				utftext += String.fromCharCode(c);
+			} else if((c > 127) && (c < 2048)) {
+				utftext += String.fromCharCode((c >> 6) | 192);
+				utftext += String.fromCharCode((c & 63) | 128);
+			} else {
+				utftext += String.fromCharCode((c >> 12) | 224);
+				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+				utftext += String.fromCharCode((c & 63) | 128);
+			}
+
+		}
+		
+		return utftext;
+	}
+	
+	/** Casts the given integer as unsigned 32-bit. */
+	Juvia.uint32 = function(i) {
+		return i >>> 0;
+	}
+	
+	/** Casts the given integer as unsigned 8-bit. */
+	Juvia.uint8 = function(i) {
+		return i & 0xff;
+	}
+	
+	Juvia.adler32 = function(data) {
+		var a = 1, b = 0;
+		var index;
+		
+		for (index = 0; index < data.length; index++) {
+			a = (a + data.charCodeAt(index)) % 65521;
+			b = (b + a) % 65521;
+		}
+		
+		return this.uint32((b << 16) | a);
+	}
+	
+	/** Converts a 32-bit unsigned integer into a 32-bit binary string, big endian encoding. */
+	Juvia.uintToBinary = function(i) {
+		var buf = [];
+		buf[0] = String.fromCharCode(this.uint8((i & 0xff000000) >> 24));
+		buf[1] = String.fromCharCode(this.uint8((i & 0xff0000) >> 16));
+		buf[2] = String.fromCharCode(this.uint8((i & 0xff00) >> 8));
+		buf[3] = String.fromCharCode(this.uint8( i & 0xff ));
+		return buf.join('');
+	}
+	
+	Juvia.compress = function(str) {
+		if (str.length == 0) {
+			return Base64.encode("x\234\003\000\000\000\000\001");
+		} else {
+			var data = this.encodeUtf8(str);
+			data = "\x78\x9c" +
+				RawDeflate.deflate(data) +
+				this.uintToBinary(this.adler32(data));
+			return Base64.encode(data);
+		}
+	}
+
+	Juvia.rdf_comment_box = function(option){
+	  var comment_number = (option.comment_number == null) ? "" : option.comment_number+"";
+	  var comment_id = option.comment_id;
+	  var user_image = option.user_image;
+	  var user_name = option.user_name;
+	  var comment_text = option.comment_text;
+	  var creation_date = option.creation_date;
+	  var comment_votes = option.comment_votes;
+	  var liked = option.liked;
+	  var flagged = option.flagged;
+	  var comment_user_email = option.user_email;
+	  var editable = function(){
+        if(option.can_edit == "true"){
+          return true;
+        }
+        return false;
+      };
+      var a = document.createElement("div");
+      a.className = "juvia-comment";
+      if(comment_number != "" ) {
+	  a.id = "comment-box-"+comment_number;
+      }
+      a.setAttribute("data-comment-number" , comment_number);
+      
+      
+      // Start Header creation 
+      
+      
+     $(a).html("<div class='row-fluid'><div class='span1'><div class='row-fluid'><div class='span10 juvia-avatar'><img width='64'height='38'class='img-circle'data-user-email='"+ comment_user_email + "'src='"+ user_image +"'></div></div></div><div class='span11 rdf-comment-header'><div class='row-fluid'><div class='span10'><span class='header-user-name juvia-author-name'>"+ user_name +"</span></div><div class='span2'><div class='row-fluid'><div class='span8'><span class='pull-right'>"+ comment_number +"</span></div><div class='span1'></div><div class='span3'><span data-divid='divid"+ comment_id +"'class='collapse_link_class'href='#divid"+ comment_id +"'data-toggle='jcollapse'><i class='icon-minus'id='comment_sign_divid"+ comment_id +"'></i></span></div></div></div></div></div></div>");
+    
+
+      // end Comment Header Bar
+      
+      
+
+      var ab = document.createElement("div");
+      ab.className = "juvia-data in jcollapse";
+      ab.setAttribute("id","divid"+comment_id);
+      a.appendChild(ab);
+
+      var aba = document.createElement("div");
+      aba.className = "juvia-comment-content";
+      ab.appendChild(aba);
+
+      var abaa = document.createElement("div");
+      abaa.className = function(){
+        if(editable()){
+          return "juvia-comment-pure-content juvia-comment-editable-content";
+        }
+        return "juvia-comment-pure-content";
+      }();
+      
+      $(abaa).html(comment_text);
+      aba.appendChild(abaa);
+      
+      var abab = document.createElement("div");
+      abab.className = "row-fluid juvia-comment-function";
+      aba.appendChild(abab);
+
+      var ababa = document.createElement("div");
+      ababa.className = function(){
+        if(editable()){
+          return "span7";
+        }
+        return "span7";
+      }();
+      abab.appendChild(ababa);
+
+      var ababaa_p = document.createElement("p");
+      ababa.appendChild(ababaa_p);
+
+      var ababaaa_span = document.createElement("span");
+      ababaaa_span.appendChild(document.createTextNode(creation_date));
+      ababaa_p.appendChild(ababaaa_span);
+
+      var ababaab_span = document.createElement("span");
+      ababaab_span.id = "comment-vote-" + comment_id;
+      ababaab_span.setAttribute("style", "margin-left:15px");
+      ababaab_span.appendChild(document.createTextNode(comment_votes));
+      ababaa_p.appendChild(ababaab_span);
+
+      
+      var bottom_second_colm = document.createElement("div");
+      bottom_second_colm.className = "span5";
+      abab.appendChild(bottom_second_colm);
+      
+      var function_links = document.createElement("div");
+      function_links.className = "row-fluid";
+      $(function_links).css("text-align", "right");
+      
+      bottom_second_colm.appendChild(function_links);
+
+      var ababb_flag = document.createElement("div");
+      ababb_flag.className = function(){
+        if(editable()){
+          return "span4";
+        }
+        return "span6";
+      }();
+      
+      
+      
+      var flag_comment_tag = document.createElement("flagcomment");
+      flag_comment_tag.setAttribute("data-comment-id", comment_id);
+      
+      var ababb_flag_p = document.createElement("i");
+      var flag_span = document.createElement("span");
+      
+      flag_span.id = "flag-" + comment_id;
+      if(flagged == 'Flagged'){
+      	flag_span.appendChild(document.createTextNode(" Flagged"));
+      	ababb_flag_p.className = "icon-flag";
+      }else{
+        flag_span.appendChild(document.createTextNode(" Flag"));
+        $(flag_comment_tag).css("visibility", "hidden");
+        ababb_flag_p.className = "icon-flag";
+        flag_comment_tag.className = "blink_text";
+      }
+      
+      
+      flag_comment_tag.appendChild(ababb_flag_p);
+      flag_comment_tag.appendChild(flag_span);
+      ababb_flag.appendChild(flag_comment_tag);
+
+
+
+      function_links.appendChild(ababb_flag);
+      var ababb = document.createElement("div");
+      ababb.className = "span3";
+      function_links.appendChild(ababb);
+
+
+        
+      var vote_comment_tag = document.createElement("votecomment");
+      vote_comment_tag.className = "juvia-vote-to-comment";
+      vote_comment_tag.id = "comment-vote-icon-" + comment_id;
+      vote_comment_tag.setAttribute("data-comment-id", comment_id);
+      
+      var ababba = document.createElement("i");
+      var like_span = document.createElement("span");
+      if(liked == "liked"){
+        ababba.className = "icon-thumbs-down";
+        like_span.appendChild(document.createTextNode(" Liked"));
+      }else{
+        ababba.className = "icon-thumbs-up";
+        like_span.appendChild(document.createTextNode(" Like"));
+      }
+      
+      
+      vote_comment_tag.appendChild(ababba);
+      vote_comment_tag.appendChild(like_span);
+      
+      ababb.appendChild(vote_comment_tag);
+
+
+      var ababc = document.createElement("div");
+      ababc.className = "span3";
+      function_links.appendChild(ababc);
+
+      var ababca = document.createElement("span");
+      ababca.className = "rdf-reply-to-comment";
+      ababc.appendChild(ababca);
+      if(this.user_logged_in && !this.restrict_comment_length){
+        ababca.appendChild(document.createTextNode("Reply"));
+      }
+      
+      if(editable()){
+        var edit_comment_dom = document.createElement("div");
+        edit_comment_dom.className = "span2";
+        function_links.appendChild(edit_comment_dom);
+
+        var edit_comment_dom_p = document.createElement("p");
+        edit_comment_dom_p.className = "juvia-edit-to-comment";
+        edit_comment_dom.appendChild(edit_comment_dom_p);
+        var edit_comment_dom_p_a = document.createElement("a");
+        edit_comment_dom_p_a.setAttribute("href", "javascript:void(0)");
+        edit_comment_dom_p_a.appendChild(document.createTextNode("Edit"));
+        edit_comment_dom_p.appendChild(edit_comment_dom_p_a);
+       }
+      
+      return a;
+    }
+    
+    Juvia.appendComment = function(dom_element) {
+      $('#juvia-comments-box').append(dom_element);
+    }
+    
+    Juvia.prependComment = function(dom_element) {
+      $(dom_element).prependTo($('#juvia-comments-box'));
+    }
+	
+	
+	/********* Initialization *********/
+	
+	if (!('_juviaRequestCounter' in window)) {
+		window._juviaRequestCounter = 0;
+	}
+	
+	// Checks whether browser supports Cross-Origin Resource Sharing.
+	if (!('supportsCors' in Juvia)) {
+		if (window.XMLHttpRequest) {
+			var xhr = new XMLHttpRequest();
+			Juvia.supportsCors = 'withCredentials' in xhr;
+		} else {
+			Juvia.supportsCors = false;
+		}
+	}
+	
+	
+	for (var name in Juvia) {
+		if (name != '$' && typeof(Juvia[name]) == 'function') {
+			Juvia[name] = $.proxy(Juvia[name], Juvia);
+		}
+	}
+})(Juvia);
+
+

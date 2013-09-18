@@ -1,0 +1,6 @@
+<%= juvia_handle_response(
+  :status    => 'ok',
+  :action    => 'ReportComment',
+  :comment_id => @comment.id,
+  :flagged => (@comment.flagged)
+) %>

@@ -1,0 +1,90 @@
+en:
+  add_comment_title: Add comment
+  akismet_internal_error: Akismet internal error
+  akismet_key_error: Akismet key required
+  akismet_key_error: Akismet server error
+  akismet_server_key_error: Unknown Akismet server error, maybe your API key is wrong
+  akismet_site_error: Site URL required for Akismet check
+  anonymous: Anonymous
+  API_invocation_error: API invocation error
+  by: by
+  cancel: Cancel
+  click_here: click here
+  close_btn: Close
+  comments: Comments
+  commenting_closed: Commenting closed.
+  compose_new_comment: Compose new comment
+  confirm_message_flag: Are you sure you wish to flag this comment?
+  delete_confirm_msg: Are you sure you wish to delete this comment?
+  delete: Delete
+  edit: Edit
+  email_notification_off: Email Notification is OFF
+  email_notification_on: Email Notification is ON
+  email_notification_success_message: Email notifications were successfully saved.
+  error_add_comment: You didn't write anything.
+  example: Example
+  flag: Flag
+  flagged: Flagged
+  for_bold: For bold
+  for_italic: For italic
+  format: Format
+  format_text: Format Text
+  guests_liked_this: "%{guests} guests liked this."
+  h1_header: H1 Header
+  h2_header: H2 Header
+  headers: Headers
+  images: Images
+  in_reply_to: In reply to
+  item_1: Item 1
+  item_2: Item 2
+  like: Like
+  liked: Liked
+  link_to_article: Link to article
+  link_to_this_comment: "Link to this comment"
+  links: Links
+  lists: Lists
+  loading: Loading
+  markdown_help: Help with formatting
+  miscellaneous: Miscellaneous
+  missing_parameter: Missing required parameter
+  more: More
+  more_help_on_markdown_home_page: More help on markdown home page
+  no_comments: There are no comments yet.
+  ok: OK
+  one_guest_liked_this: "One guest liked this."
+  one_user_guests_liked_this: "One user and %{guests} guests liked this."
+  one_user_liked_this: "One user liked this."
+  one_user_one_guest_liked_this: "One user and One guest liked this."
+  ordered: Ordered
+  people_who_liked_this: People who liked this
+  please_login_to_make_comment: Please Login to make comment
+  post_comment_delay_message: "You can post again in %{post_delay} seconds"
+  preview: Preview
+  reference_required: Reference is required
+  replied_to_your_comment_on: replied to your comment on
+  reply: Reply
+  required_parameter: The required parameter
+  show_more: Show More
+  site_key_not_found: Site key not found.
+  site_not_found_message: Oops, we don't recognize this site key. Please check whether it's correct.
+  sort_by_most_popular: Sort by most popular
+  sort_by_newest_first: Sort by newest first
+  sort_by_oldest_first: Sort by oldest first
+  submit_btn: Submit
+  submitting_please_wait: Submitting, please wait...
+  text_styles: Text styles
+  thanks: Thanks!
+  thanks_for_flag: Thank you. This comment has been flagged for moderator attention.
+  topic: Topic
+  topic_like: Like this topic
+  topic_liked: Liked this topic
+  topic_notification: Notification about this topic
+  topic_notified: Notified this topic
+  total_comment_title: comments
+  unliked: Unliked
+  unordered: Unordered
+  users_guests_liked_this: "%{users} users and %{guests} guests liked this."
+  users_liked_this: "%{users} users liked this."
+  users_one_guest_liked_this: "%{users} users and One guest liked this."
+  vote_required: Vote is required
+  was_not_given: wasn't given

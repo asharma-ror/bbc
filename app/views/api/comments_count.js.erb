@@ -1,0 +1,33 @@
+var RDFWIDGETS;
+if (typeof RDFWIDGETS != 'undefined')
+{
+  RDFWIDGETS.displayCount(
+  {
+    "showReactions": false,
+    "text": {
+      "and": "and",
+      "reactions": {
+        "zero": "",
+        "multiple": "",
+        "one": ""
+      },
+      "comments": {
+        "zero": "0",
+        "multiple": "{num}",
+        "one": "1"
+      }
+    },
+    "counts": [
+    <%@comments_arr.each do |comment_obj|%>
+      {
+        "uid": <%=comment_obj["uid"]%>,
+        "comments": <%=comment_obj["comments"]%>
+      },
+    <% end %>
+      {
+        "uid": "last",
+        "comments": "last one"
+      }
+    ]
+  });
+}

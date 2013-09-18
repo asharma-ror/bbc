@@ -1,0 +1,74 @@
+<div class="juvia-data">
+	<div class="juvia-field juvia-textarea-field">
+      <% if @restrict_comment_length %> 
+		   <textarea data-provide="limit" data-counter="#counter" 
+         placeholder="<%= t(:compose_new_comment)%>.." id="comment_textarea" 
+         name="content"></textarea>
+      <% else %>
+        <textarea placeholder="<%= t(:compose_new_comment)%>.." id="comment_textarea" 
+         name="content"></textarea>
+      <% end %>
+	</div>
+</div>
+<div class="row-fluid">
+  <div class="span9">
+    <div class="juvia-form-actions">
+      <div class="juvia-action juvia-submit-button">
+        <input type="submit" value="<%= t(:submit_btn)%>" />
+        <input type="button" id="juvia-cancel-button" style="display: none" value="<%= t(:cancel)%>"/>
+        <% if @restrict_comment_length %> 
+          <em id="counter" style="">140</em>
+        <% end %>
+      </div>
+      <div class="juvia-action juvia-submitting-button" style="display: none">
+        <input type="submit" value="<%= t(:submitting_please_wait) %>..." disabled />
+      </div>
+      <div class="juvia-error" style="display: none"></div>
+    </div>
+  </div>
+  <div class="span3">
+    <div class="row-fluid">
+      <div class="span2"></div>
+      <div class="span10">
+        <div class="row-fluid">
+          <% unless @notify_on.nil? %>
+            <div class="span3" id="email_icon">
+              <% if @notify_on %>
+                <i class="icon-envelope"></i>
+              <% end %>
+            </div>
+            <div class="span9">
+              <div class="dropdown">
+                <a href="#" data-toggle="dropdown" role="button" id="juvia-setting" class="dropdown-toggle">
+                  <span><i class="icon-cog"> </i></span>
+                  <span><b class="caret"></b></span>
+                </a>
+                <ul aria-labelledby="juvia-setting" role="menu" class="dropdown-menu">
+                  <li role="presentation">
+                    <a href="javascript:void(0);" tabindex="-1" role="menuitem" id="author_email_setting">
+                      <i class="icon-envelope"> </i> 
+                      <% if @notify_on %>
+                        <span id="juvia-author-setting" class="turn_on"><%= t(:email_notification_on) %></span>
+                      <% else %>
+                        <span id="juvia-author-setting" class="turn_off"><%= t(:email_notification_off) %></span>
+                      <% end %>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="juvia_email_notification row-fluid hide"></div>
+
+<div class="juvia-preview">
+	<h4><%= t(:preview) %></h4>
+	<div class="juvia-preview-empty">
+	</div>
+	<div class="juvia-preview-content" style="display: none"></div>
+</div>

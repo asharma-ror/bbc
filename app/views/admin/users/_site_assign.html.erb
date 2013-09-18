@@ -1,0 +1,11 @@
+<%= form_for([:admin, @user], :url => assign_site_admin_user_path) do |f| %>
+  <div class="para">
+    <%= label_tag 'Select Site:'%>
+    <%= select_tag "site_id", options_from_collection_for_select(Site.all,'id','name'), {:id => "assign_site_id"}  %>
+    <%= primary_button_submit_tag('assign') %>
+  </div>
+
+  <div class="para actions">
+    
+  </div>
+<%end%>

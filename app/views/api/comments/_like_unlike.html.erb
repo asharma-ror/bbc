@@ -1,0 +1,41 @@
+<div class="juvia-topic-vote">
+  <div class="row-fluid">
+    <div class="span5">
+      <votetopic class="juvia-vote-to-topic" id="vote_for_like">
+        <i class="icon-thumbs-up" ></i>
+        <span> <%= t(:topic_like) %></span>
+      </votetopic>
+    </div>
+    <div class="span7">
+      <span id="liked_pages" class= "<%= (user_likes?(@topic)) ? 'user_like' : 'guest_like' %>" ><%= i18_votes(@topic) %></span>
+    </div>
+  </div>
+  <% if @user_logged_in %>
+    <div class="row-fluid">
+      <div class="span6">
+        <votetopic class="juvia-subscribe-to-topic" id="subscriber_email">
+          <i class="icon-envelope"></i>
+          <span><%= t(:topic_notification) %></span>
+        </votetopic>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @topic.liked?(@username, @user_email) %>
+<!-- // TO DO NEED TO WRITE A FUNCTION THAT WILL WORK IN BOTH PLACES, BELOW AND BASE.JS.ERB -->
+  <script type="text/javascript">
+    var $like = Juvia.$('#vote_for_like')
+    $like.addClass('votes-up-active');
+    var $like_text = $like.find("span");
+    $like_text.html("<%= escape_javascript(t(:topic_liked)) %>");
+  </script>
+<% end %>
+<% if @user_logged_in && topic_notify?(@user_email, @topic.id) %>
+  <script type="text/javascript">
+    var $subscriber_email = Juvia.$('#subscriber_email')
+    $subscriber_email.addClass('votes-up-active');
+    var $subscriber_email_text = $subscriber_email.find("span");
+    $subscriber_email_text.html("<%= escape_javascript(t(:topic_notified)) %>");
+  </script>
+<% end %>

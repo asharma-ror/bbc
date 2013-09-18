@@ -1,0 +1,14 @@
+<%= render :partial => 'admin/shared/site_navigation' %> 
+<h3> Comments </h3>
+<hr>
+<div class="comments list">
+  <% comments = @site.comments.page(params[:page])%>
+  <% if comments.empty? %>
+    No comments have been posted.
+  <% else %>
+    <%= render :partial => 'admin/comments/comment',
+      :collection => comments,
+      :locals => { :show_topic => true } %>
+    <%= paginate comments %>
+  <% end %>
+</div>

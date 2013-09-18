@@ -1,0 +1,9 @@
+<% comment = @comment%>
+<% option = comment_hash(comment, comment.author_name, comment.author_email, {:topic_url => @topic.present? ? @topic.url : "" })%>
+<%= juvia_handle_response(
+  :status         => 'ok',
+  :action         => 'AddComment',
+  :site_key       => @site_key,
+  :topic_key      => @topic_key,
+  :comment_option => option
+) %>

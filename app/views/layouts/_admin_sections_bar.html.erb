@@ -1,0 +1,41 @@
+<nav id="sections_bar" class="container">
+  <div class="row">
+    <div class="sections col_9 clearleft">
+      <% if can?(:read, Site) %>
+        <div class="section <%= maybe_active(:sites) %>">
+          <%= link_to "Sites", admin_sites_path %>
+        </div>
+      <% end %>
+
+    <% if !@site.blank? && !@site.new_record? %>
+      <div class="section <%= maybe_active(:topics) %>">
+        <%= link_to "Topics", admin_site_topics_path(:site_id => @site) %>
+      </div>
+      <% if can?(:read, Comment) %>
+        <div class="section <%= maybe_active(:comments) if params[:action] != "flags" %>">
+          <%= link_to "Comments", admin_site_comments_path(:site_id => @site ) %>
+        </div>
+      <% end %>
+     <div class="section <%= maybe_active(:comments) if params[:action] == "flags" %>">
+        <%= link_to "Flags", flags_admin_site_comments_path(:site_id => @site ) %>
+     </div>
+    <% end %>
+
+      <% if can?(:list, User) %>
+        <div class="section <%= maybe_active(:users) %>">
+          <%= link_to "Users", admin_users_path %>
+        </div>
+      <% end %>
+    </div>
+    <div class="actions col_3 omega">
+      <%= button_group do %>
+        <% if can?(:create, User) %>
+          <%= user_pill_button_link_to 'New user', new_admin_user_path %>
+        <% end %>
+        <% if can?(:create, Site) %>
+          <%= add_pill_button_link_to 'New site', new_admin_site_path %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</nav>

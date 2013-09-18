@@ -1,0 +1,13 @@
+<% comment_users = {} %>
+<% @votes.each_with_index do |vote,index| %>
+    <%
+      options = comment_users_hash(vote)
+      comment_users.merge!({index => options})
+    %>
+<% end %>
+<%= juvia_handle_response(
+  :status        => 'ok',
+  :action        => 'ShowCommentLikeUsers',
+  :comment_id    => @comment.id.to_s,
+  :comment_users => comment_users
+) %>

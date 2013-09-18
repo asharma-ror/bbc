@@ -1,0 +1,90 @@
+es:
+  add_comment_title: Añadir comentario
+  akismet_internal_error: Error interno en Akismet
+  akismet_key_error: Código de Akismet requerido
+  akismet_key_error: Error del servidor de Akismet
+  akismet_server_key_error: Error desconocido en el servidor de Akismet, tal vez su código API esté equivocado
+  akismet_site_error: Se requiere el URL del sitio para revisión por Akismet.
+  anonymous: Anónimo
+  API_invocation_error: Error al invocar API
+  by: por
+  cancel: Cancelar
+  click_here: haga clic aquí
+  close_btn: Cerrar
+  comments: Comentarios
+  commenting_closed: Commenting closed.
+  compose_new_comment: Redacte un nuevo comentario
+  confirm_message_flag: ¿Está seguro de querer notificar este comentario?
+  delete_confirm_msg: ¿Está seguro de querer eliminar este comentario?
+  delete: Delete
+  edit: Editar
+  email_notification_off: Aviso por correo INACTIVO
+  email_notification_on: Aviso por correo ACTIVO
+  email_notification_success_message: Los avisos por correo se guardaron con éxito.
+  error_add_comment: Usted no ha escrito nada aún.
+  example: Ejemplo
+  flag: Notificar
+  flagged: Marcado
+  for_bold: Para negritas
+  for_italic: Para itálicas
+  format: Formato
+  format_text: Formato de Texto
+  guests_liked_this: "A %{guests} invitados les gustó esto."
+  h1_header: Título T1
+  h2_header: Título T2
+  headers: Títulos
+  images: Imágenes
+  in_reply_to: En respuesta a
+  item_1: Elemento 1
+  item_2: Elemento 2
+  like: Me gusta
+  liked: Me gustó
+  link_to_article: Enlace al artículo
+  link_to_this_comment: "Link to this comment"
+  links: Enlaces
+  lists: Listas
+  loading: Cargando
+  markdown_help: Para ayuda con el formato
+  miscellaneous: Misceláneos
+  missing_parameter: Parámetro requerido faltante
+  more: More
+  more_help_on_markdown_home_page: Más ayuda en la página de inicio de markdown
+  no_comments: Aún no hay comentarios.
+  ok: OK
+  one_guest_liked_this: "A Un invitado le gustó esto."
+  one_user_guests_liked_this: "A Un usuario y a %{guests} invitados les gustó esto."
+  one_user_liked_this: "A un usuario le gustó esto."
+  one_user_one_guest_liked_this: "A Un usuario y a Un invitado les gustó esto."
+  ordered: Numerada
+  people_who_liked_this: Gente a la que le ha gustado esto
+  please_login_to_make_comment: Para comentar, por favor inicie sesión
+  post_comment_delay_message: "You can post again in %{post_delay} seconds"
+  preview: Vista previa
+  reference_required: Se requiere una referencia
+  replied_to_your_comment_on: respondió a su comentario en
+  reply: Responder
+  required_parameter: El parámetro requerido
+  show_more: Mostrar Más
+  site_key_not_found: Código de sitio no encontrado.
+  site_not_found_message: Ups, no reconocemos el código de este sitio. Por favor revise que sea correcto.
+  sort_by_most_popular: Ordenar por popularidad
+  sort_by_newest_first: Ver más recientes primero
+  sort_by_oldest_first: Ver más antiguos primero
+  submit_btn: Enviar
+  submitting_please_wait: Enviando, por favor espere...
+  text_styles: Estilos de texto
+  thanks: ¡Gracias!
+  thanks_for_flag: Gracias. El comentario ha sido marcado para la atención del moderador.
+  topic: Tópico
+  topic_like: Me gusta este tópico
+  topic_liked: Me gustó este tópico
+  topic_notification: Notification about this topic
+  topic_notified: Notified this topic
+  total_comment_title: comentarios
+  unliked: Ya no me gustó
+  unordered: Con viñetas
+  users_guests_liked_this: "A %{users} usuarios y %{guests} invitados les gustó esto."
+  users_liked_this: "A %{users} usuarios les gustó esto."
+  users_one_guest_liked_this: "%{users} users and One guest liked this."
+  vote_required: Se requiere su voto
+  was_not_given: no fue entregado
