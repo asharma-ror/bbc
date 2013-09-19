@@ -71,7 +71,7 @@ module ApplicationHelper
     :comment_id => comment.id,
     :user_image => avatar_img(comment.author_email, (comment.author_email_md5 rescue '')),
     :user_name => comment.author_name,
-    :comment_text => render_markdown(comment.content),
+    :comment_text => comment.content,
     :creation_date => comment.created_at.strftime("%d-%b-%Y %H:%M %p"), 
     :comment_votes => i18_votes(comment),
     :liked => (user_liked?(username, user_email, comment) ? "liked" : "like"),
