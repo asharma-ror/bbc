@@ -1,0 +1,12 @@
+<% if @comment_status %>
+  <%= juvia_handle_response(
+    :status    => 'ok',
+    :got_new_comment => 'false',
+    :action    => 'TouchChat')%>
+<% else %>
+  <%= juvia_handle_response(
+    :status    => 'ok',
+    :got_new_comment => 'true',
+    :action    => 'TouchChat')%>
+<% end %>
+

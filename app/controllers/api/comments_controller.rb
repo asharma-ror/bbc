@@ -9,9 +9,9 @@ class Api::CommentsController < ApplicationController
   before_filter :check_restrict_comment_length, :only => [ :add_comment, :update_comment ]
 
   def show_topic
-    @topic_title, @topic_url = params[:topic_title], params[:topic_url]
+    @user_image, @username = params[:user_image], params[:username]
     @include_base, @include_css = get_boolean_param(:include_base, true), get_boolean_param(:include_css, true)
-    prepare!([:site_key, :topic_key, :container, :topic_title, :topic_url], [:html, :js])
+    prepare!([:site_key, :topic_key, :container], [:html, :js])
     @topic = Topic.lookup(@site_key, @topic_key)
     topic_url_arr = params[:topic_url].split('#')
     @perma_link_comment_id = topic_url_arr[1].blank? ? nil : topic_url_arr[1].split('-')[2]
@@ -24,18 +24,31 @@ class Api::CommentsController < ApplicationController
   end
 
   def load_comments
-    prepare!([:site_key, :topic_key, :topic_title, :topic_url, :sorting_order], [:html, :js])
-    @topic_title, @topic_url = params[:topic_title], params[:topic_url]
-    list_comments(params[:perma_link_comment_id])
+    prepare!([:site_key, :topic_key], [:html, :js])
+    @topic = Topic.lookup_or_create(@site_key, @topic_key)
+    topic_comments = @topic.topic_comments
+    comments = topic_comments.send("oldest")
+    @last_comment_number = @topic.last_comment_number
+    @chats = Kaminari.paginate_array(comments)
+    @chat_count = topic_comments.size
   end
-
-  def show_comments
-    prepare!([:site_key, :topic_key, :topic_url, :sorting_order, :page],[:html, :js])
-    list_comments
+  
+  def touch_chat
+    prepare!([:topic_key, :comment_count], [:js, :json])
+    @comment_status = Comment.topic_comment_count?(params[:topic_key], params[:comment_count])
+  end
+  
+  def append_chat
+    prepare!([:topic_key, :comment_number], [:js, :json])
+    @topic = Topic.where(:key => params[:topic_key].to_s).first
+    @chats = @topic.new_comments(params[:comment_number])
+    @last_comment_number = @topic.last_comment_number
+    topic_comments = @topic.topic_comments
+    @chat_count = topic_comments.size
   end
 
   def add_comment
-    prepare!([:site_key, :topic_key, :topic_title, :topic_url, :content], [:html, :js, :json])
+    prepare!([:site_key, :topic_key, :content], [:html, :js, :json])
     if @content.blank?
       render :partial => 'content_may_not_be_blank'
       return
@@ -59,10 +72,18 @@ class Api::CommentsController < ApplicationController
           :referer => request.env['HTTP_REFERER'],
           :content => @content,
           :parent_id => parent_id)
+        @last_comment_number = @topic.last_comment_number
+        topic_comments = @topic.topic_comments
+        @chat_count = topic_comments.size
       else
         render :partial => 'api/site_not_found'
       end
     end
+  end
+  
+  def show_comments
+    prepare!([:site_key, :topic_key, :topic_url, :sorting_order, :page],[:html, :js])
+    list_comments
   end
 
   def update_comment

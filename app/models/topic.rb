@@ -19,12 +19,22 @@ class Topic < ActiveRecord::Base
     end
   end
 
-  validates_presence_of :key
-  validates_presence_of :title
-  validates_presence_of :site_id
-  validates_presence_of :url
+  validates :key, :presence => true, :uniqueness => true
+  #validates_presence_of :key
+  #validates_presence_of :title
+  #validates_presence_of :site_id
+  #validates_presence_of :url
 
   include Like  
+
+  def new_comments(comment_number)
+    topic_comments.where("comment_number > ? ", comment_number.to_i)
+  end
+
+  def last_comment_number
+    total_comments = topic_comments.newest
+    total_comments.blank? ? 0 : (total_comments[0].comment_number.blank? ? 0 : (total_comments[0].comment_number) )
+  end
 
   def self.topic_comments_size(topic_id, site_key)
     if topic = Topic.find_by_site_key_and_topic_key(site_key, topic_id)
@@ -35,7 +45,7 @@ class Topic < ActiveRecord::Base
   end
 
   def self.lookup(site_key, topic_key)
-    topic = find_by_site_key_and_topic_key(site_key, topic_key)
+    topic = find_by_key(topic_key)
     if topic
       topic
     else
@@ -48,8 +58,8 @@ class Topic < ActiveRecord::Base
     end
   end
   
-  def self.lookup_or_create(site_key, topic_key, topic_title, topic_url)
-    topic = find_by_site_key_and_topic_key(site_key, topic_key)
+  def self.lookup_or_create(site_key, topic_key, topic_title = "" , topic_url = "")
+    topic = find_by_key(topic_key)
     if topic
       topic
     else

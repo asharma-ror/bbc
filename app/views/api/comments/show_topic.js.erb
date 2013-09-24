@@ -1,49 +1,20 @@
-<% if @require_external_user %>
-  Juvia.root_url = '<%= escape_javascript(Settings.juvia_comment.url) %>';
-<% end %>
+Juvia.root_url = '<%= escape_javascript(Settings.juvia_comment.url) %>';
 
-<% if @require_external_user %>
-  Juvia.use_my_user = 'true';
-<% end %>
 
-<% if @user_logged_in %> 
-  Juvia.user_logged_in = true;
-  Juvia.username = '<%= escape_javascript(@username) %>';
-  Juvia.user_email = '<%= escape_javascript(@user_email) %>';
-<% end %>
-
-<% if @restrict_comment_length %> 
-  Juvia.restrict_comment_length = true;
-<% end %>
-
-  Juvia.site_key = '<%= @site_key%>';
-  Juvia.topic_key = '<%= @topic_key%>';
-  Juvia.topic_url = '<%= @topic_url%>';
-  Juvia.topic_title = '<%= escape_javascript(@topic_title) %>';
-  Juvia.perma_link_comment_id = '<%= @perma_link_comment_id %>';
-  Juvia.translated_locale = Juvia.$.parseJSON('<%= escape_javascript(@json_locale.html_safe) %>');
-
+Juvia.username = '<%= escape_javascript(@username) %>';
+Juvia.user_email = '<%= escape_javascript(@user_email) %>';
+Juvia.user_image = '<%= escape_javascript(@user_image) %>';
+Juvia.site_key = '<%= @site_key%>';
+Juvia.topic_key = '<%= @topic_key%>';
 <%
   options = { 
     :action    => 'LoadTopic',
     :container => @container,
-    :html      => render(:partial => 'topic', :formats => [:html], :locals => { :topic => @topic }),
-    :css       => '.juvia-container [class^="icon-"],.juvia-container [class*=" icon-"] {background-image: url(" ' + Settings.juvia_comment.url + '/assets/glyphicons-halflings.png");}'
+    :html      => render(:partial => 'topic', :formats => [:html], :locals => { :topic => @topic })
   }
 %>
 
 <%= juvia_handle_response(options) %>
 <%= juvia_reinstall_behavior %>
-
-
-if(Juvia.get_cookie('sorting_order') !== null){
-  Juvia.sorting_order = Juvia.get_cookie('sorting_order');
-  Juvia.$("#juvia-sort-select").val(Juvia.sorting_order);
-}
-
-try{
-  Juvia.setLocale("<%= I18n.locale %>");
-}catch(e){
-}
 
 Juvia.reqLoadComment();

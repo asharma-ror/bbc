@@ -1,28 +1,23 @@
-Juvia.total_pages = <%= @comments.total_pages %>;
+Juvia.total_pages = 1<%#= @chats.total_pages %>;
 
 if(Juvia.total_pages > 1){
   Juvia.$('#show_more_comments').show();
 }
 
-<% if @perma_link_comment.present? %>
-  <% 
-    options = comment_hash(@perma_link_comment, @username, @user_email, {:topic_url => @topic.url })
-    options.merge!({'action' => 'LoadComment', 'perma_link_comment_id' => @perma_link_comment.comment_number, 'perma_link_comment_box' => 'true'})
-  %>
-  <%= juvia_handle_load_comment(options) %>
-<% end %>
+Juvia.comment_count = <%= @chat_count %>;
+Juvia.last_comment_number = <%= @last_comment_number %>;
 
-<% if (comments = @comments).size > 0 %>
+<% if (comments = @chats).size > 0 %>
   <% comments.each_with_index do |comment, index| %>
     <% 
-      options = comment_hash(comment, @username, @user_email, {:topic_url => @topic.url})
-      options.merge!({'action' => 'LoadComment', 'perma_link_comment_id' => @perma_link_comment.blank? ? "" : @perma_link_comment.comment_number, 'perma_link_comment_box' => 'false'})
+      options = comment_hash(comment, @username, @user_email)
     %>
-    <%= juvia_handle_load_comment(options) %>
+    <%= juvia_handle_load_chat(options) %>
   <% end %>
 <% end %>
 <%= juvia_reinstall_behavior %>
 
-<% if @perma_link_comment.present? %>
-  window.location = "#comment-box-<%= @perma_link_comment.comment_number.to_s %>";
-<% end %>
+window.setInterval(function(){
+  $("#chat-refresh").click();
+}, 1000);
+

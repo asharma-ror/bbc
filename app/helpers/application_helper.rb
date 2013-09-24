@@ -14,6 +14,10 @@ module ApplicationHelper
   def juvia_handle_load_comment(options)
     "Juvia.handleLoadComment(#{options.to_json})".html_safe
   end
+  
+  def juvia_handle_load_chat(options)
+    "Juvia.handleLoadChat(#{options.to_json})".html_safe
+  end
 
   def juvia_reinstall_behavior
     "Juvia.reinstallBehavior();".html_safe
@@ -69,7 +73,7 @@ module ApplicationHelper
   def comment_hash(comment, username, user_email, options = {})
     return {:comment_counter => 1,
     :comment_id => comment.id,
-    :user_image => avatar_img(comment.author_email, (comment.author_email_md5 rescue '')),
+    :user_image => avatar_image(comment.author_email),
     :user_name => comment.author_name,
     :comment_text => comment.content,
     :creation_date => comment.created_at.strftime("%d-%b-%Y %H:%M %p"), 
@@ -82,6 +86,11 @@ module ApplicationHelper
     :permalink => comment.permalink(options[:topic_url]),
     :user_like_comment => user_likes?(comment) ? "false" : "false"
     }
+  end
+  
+  def avatar_image(email)
+    gravatar_id = Digest::MD5::hexdigest(email.to_s).downcase
+    "http://gravatar.com/avatar/#{gravatar_id}.png"
   end
   
   def comment_users_hash(vote)

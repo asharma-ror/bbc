@@ -33,13 +33,6 @@ end
 group :development, :test do
   gem 'debugger'
   gem 'mysql2'
-  gem 'rspec-rails', '~> 2.4'
-  gem 'capybara', :require => false
-  gem 'capybara-webkit', :require => false
-  gem 'database_cleaner', :require => false
-  gem 'factory_girl_rails', :require => false
-  gem 'launchy', :require => false
-  gem 'spork', '0.9.0.rc9', :require => false
   gem 'taps'
   gem 'sqlite3'
   gem 'thin'

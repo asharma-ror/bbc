@@ -21,12 +21,12 @@ class Comment < ActiveRecord::Base
   scope :requiring_moderation, where("moderation_status != ?", moderation_status(:ok))
   
   validates_presence_of :content
-  validates_presence_of :author_ip
+  #validates_presence_of :author_ip
   
   before_validation :nullify_blank_fields
   before_create :set_moderation_status
   after_create :update_topic_timestamp
-  after_create :create_author, :update_author, :notify_comment_subscribers
+  #after_create :create_author, :update_author, :notify_comment_subscribers
   after_create :redis_update
   after_destroy :redis_update
 
@@ -215,7 +215,11 @@ private
   end
   
   def redis_update
-    $redis.set("#{self.topic.site.key}_#{self.topic.key.to_s}", self.topic.comments.size)
+    $redis.set("#{self.topic.key.to_s}", self.topic.comments.size)
+  end
+  
+  def self.topic_comment_count?(topic_key, count)
+    $redis.get("#{topic_key.to_s}") == count
   end
   
   def topic_notification

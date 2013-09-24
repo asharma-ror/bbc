@@ -296,26 +296,6 @@ Juvia.handleShowCommentLikeUsers = (options) ->
 Juvia.handleShowTopicLikeUsers = (options) ->
   @showUsers(options.topic_users,options.status)
 
-Juvia.handleAddComment = (options) ->
-  $ = @$
-  container = @findContainer(options)
-  comments = $(".juvia-comments", container)
-  comment_obj = options.comment_option
-  dom_ele = @rdf_comment_box(comment_obj)
-  comment = $(dom_ele)
-  if comments.hasClass("juvia-no-comments")
-    comments.removeClass "juvia-no-comments"
-    comments.html ""
-  @prependComment comment
-  $(".juvia-preview-empty", container).show()
-  $(".juvia-preview-content", container).hide()
-  container.find("form")[0].reset()
-  @setSubmitting container, false
-  @showCancelButton container, false
-  @saveCommentBox container
-  @smoothlyScrollTo comment.offset().top - 20
-  comment.hide().fadeIn 2000
-
 Juvia.handleDestroyComment = (options) ->
   $ = @$
   if options.status is 'deleted'

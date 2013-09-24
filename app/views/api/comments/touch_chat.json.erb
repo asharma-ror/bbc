@@ -1,0 +1,14 @@
+<% if @comment_status %>
+  <%= {
+    :status    => 'ok',
+    :got_new_comment => 'false',
+    :action    => 'TouchChat'
+  }.to_json.html_safe %>
+<% else %>
+  <%= {
+    :status    => 'ok',
+    :got_new_comment => 'true',
+    :action    => 'TouchChat'
+  }.to_json.html_safe %>
+<% end %>
+

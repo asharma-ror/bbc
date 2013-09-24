@@ -1,0 +1,18 @@
+<% options = {}%>
+<% if (comments = @chats).size > 0 %>
+  <% comments.each_with_index do |comment, index| %>
+    <% 
+      options[index] = comment_hash(comment, @username, @user_email)
+    %>
+    <%=# juvia_handle_load_chat(options) %>
+  <% end %>
+<% end %>
+
+<%= juvia_handle_response(
+    :status    => 'ok',
+    :action    => 'AppendChat',
+    :comment_count => @chat_count,
+    :last_comment_number => @last_comment_number,
+    :new_comments => options
+  )%>
+
