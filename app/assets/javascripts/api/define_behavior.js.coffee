@@ -11,5 +11,8 @@ Juvia.reinstallBehavior = ->
     $(".chat-input-box button#chat-refresh", this).bind "click", ->
       self.touchChat()
     
+    $(".chat-input-box input", this).bind "click", (e) ->
+      self.userActive()
+    
     $(".chat-input-box input", this).on "keyup", (e) ->
       self.enterChat(e,$this)

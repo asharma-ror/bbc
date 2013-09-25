@@ -19,5 +19,9 @@ Juvia.last_comment_number = <%= @last_comment_number %>;
 
 window.setInterval(function(){
   $("#chat-refresh").click();
-}, 1000);
+}, 10000);
 
+Juvia.userStatus();
+window.setInterval(function(){
+  Juvia.userStatus();
+}, 180000);

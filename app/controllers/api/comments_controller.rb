@@ -9,7 +9,7 @@ class Api::CommentsController < ApplicationController
   before_filter :check_restrict_comment_length, :only => [ :add_comment, :update_comment ]
 
   def show_topic
-    @user_image, @username = params[:user_image], params[:username]
+    @user_image, @username, @user_id = params[:user_image], params[:username], params[:user_id]
     @include_base, @include_css = get_boolean_param(:include_base, true), get_boolean_param(:include_css, true)
     prepare!([:site_key, :topic_key, :container], [:html, :js])
     @topic = Topic.lookup(@site_key, @topic_key)
@@ -27,9 +27,9 @@ class Api::CommentsController < ApplicationController
     prepare!([:site_key, :topic_key], [:html, :js])
     @topic = Topic.lookup_or_create(@site_key, @topic_key)
     topic_comments = @topic.topic_comments
-    comments = topic_comments.send("oldest")
+    comments = topic_comments.order("created_at desc").limit(60)
     @last_comment_number = @topic.last_comment_number
-    @chats = Kaminari.paginate_array(comments)
+    @chats = comments.reverse
     @chat_count = topic_comments.size
   end
   
@@ -45,6 +45,27 @@ class Api::CommentsController < ApplicationController
     @last_comment_number = @topic.last_comment_number
     topic_comments = @topic.topic_comments
     @chat_count = topic_comments.size
+  end
+  
+  def user_status
+    prepare!([:topic_key, :user_id, :project_users, :status], [:js, :json])
+    hash = {:status => params[:status], :last_active => Time.now }
+    $redis.hset("chat_users_#{params[:topic_key].to_s}", params[:user_id].to_s , hash.to_json) unless params[:user_id].blank?
+    @project_users = {}
+    params[:project_users].split(",").each do |user_id|
+      chat_user_status = $redis.hget("chat_users_#{params[:topic_key].to_s}", user_id.to_i.to_s)
+      unless chat_user_status.nil?
+        json_res = JSON.parse(chat_user_status)
+        last_active = json_res["last_active"].to_datetime
+        current_datetime = Time.now.to_datetime
+        differ = ((current_datetime-last_active)*24*60).to_i
+        if differ > 30
+          @project_users[user_id.to_i.to_s] = {:status => "offline", :last_active => json_res["last_active"] }
+        else
+          @project_users[user_id.to_i.to_s] = json_res
+        end
+      end
+    end
   end
 
   def add_comment
