@@ -35,7 +35,7 @@ Juvia::Application.configure do
   config.cache_store = :dalli_store
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
-  config.action_controller.asset_host = "d2le9zmnt4eu9w.cloudfront.net"
+  #config.action_controller.asset_host = "d2le9zmnt4eu9w.cloudfront.net"
 
   # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
   config.assets.precompile += %w( columnal.css api.js api.css)
