@@ -25,6 +25,7 @@ gem 'bcrypt-ruby'
 gem 'rails_config'
 gem 'nokogiri', :require => 'open-uri'
 gem 'delayed_job_active_record'
+gem 'batbugger'
 
 group :development do
   gem 'guard-livereload'
