@@ -1,0 +1,14 @@
+<% options = {} %>
+<% if (comments = @chats).size > 0 %>
+  <% comments.each_with_index do |comment, index| %>
+    <% 
+      options[index] = comment_hash(comment, @username, @user_email)
+    %>
+  <% end %>
+<% end %>
+
+<%={:status => 'ok',
+    :action => 'LoadMore',
+    :new_comments => options
+   }.to_json.html_safe %>
+

@@ -49,7 +49,10 @@ Juvia.addMessage = (name, img, msg, clear, options = {}) ->
   chat_time = hours + ":" + minutes + " " + ampm
   chat_time = options["creation_date"] if options["creation_date"]
   chat_block = "<p><img src=\"" + img + "\" alt=\"\" />" + "<span class=\"msg-block\"><strong>" + name + "</strong> <span class=\"time\">- " + chat_time + "</span>" + "<span class=\"msg\">" + msg + "</span></span></p>"
-  inner.append chat_block
+  if options["prepend"]
+    inner.prepend chat_block
+  else
+    inner.append chat_block
   $(chat_block).find("p").hide().fadeIn 800
   $(".chat-message input").val("").focus()  if clear
   $("#chat-messages").animate
@@ -124,3 +127,17 @@ Juvia.userAway = (user_id) ->
 Juvia.userOffline = (user_id) ->
   $(user_id).removeClass("badge-success")
   $(user_id).removeClass("badge-warning")
+
+Juvia.loadMore = ->
+  self = this
+  data =
+   topic_key: self.topic_key
+   page: self.next_page
+  self.loadScript('/api/comments/load_more_chat',data)
+
+Juvia.handleLoadMore = (options) ->
+  self = this
+  self.next_page = self.next_page + 1
+  self.$('#show_more_comments').hide() if self.next_page > self.total_pages
+  for k, v of options.new_comments
+    self.addMessage(v.user_name || "", v.user_image, v.comment_text, false, {"animate": 100, "creation_date": v.creation_date, "prepend": true})

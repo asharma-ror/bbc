@@ -12,7 +12,7 @@ class Api::CommentsController < ApplicationController
     @user_image, @username, @user_id = params[:user_image], params[:username], params[:user_id]
     @include_base, @include_css = get_boolean_param(:include_base, true), get_boolean_param(:include_css, true)
     prepare!([:site_key, :topic_key, :container], [:html, :js])
-    @topic = Topic.lookup(@site_key, @topic_key)
+    @topic = Topic.lookup_or_create(@site_key, @topic_key)
     topic_url_arr = params[:topic_url].split('#')
     @perma_link_comment_id = topic_url_arr[1].blank? ? nil : topic_url_arr[1].split('-')[2]
     if @topic
@@ -27,10 +27,18 @@ class Api::CommentsController < ApplicationController
     prepare!([:site_key, :topic_key], [:html, :js])
     @topic = Topic.lookup_or_create(@site_key, @topic_key)
     topic_comments = @topic.topic_comments
-    comments = topic_comments.order("created_at desc").limit(60)
+    comments = topic_comments.order("created_at desc")
     @last_comment_number = @topic.last_comment_number
-    @chats = comments.reverse
+    @chats = Kaminari.paginate_array(comments).page(params[:page] || 1).per(50)
     @chat_count = topic_comments.size
+  end
+  
+  def load_more_chat
+    prepare!([:topic_key, :page], [:json, :js])
+    @topic = Topic.find_by_key(params[:topic_key])
+    topic_comments = @topic.topic_comments
+    comments = topic_comments.order("created_at desc")
+    @chats = Kaminari.paginate_array(comments).page(params[:page] || 1).per(50)
   end
   
   def touch_chat

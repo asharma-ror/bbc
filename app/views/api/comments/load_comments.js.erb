@@ -1,5 +1,5 @@
-Juvia.total_pages = 1<%#= @chats.total_pages %>;
-
+Juvia.total_pages = <%= @chats.total_pages %>;
+Juvia.next_page = 2;
 if(Juvia.total_pages > 1){
   Juvia.$('#show_more_comments').show();
 }
@@ -8,7 +8,7 @@ Juvia.comment_count = <%= @chat_count %>;
 Juvia.last_comment_number = <%= @last_comment_number %>;
 
 <% if (comments = @chats).size > 0 %>
-  <% comments.each_with_index do |comment, index| %>
+  <% comments.reverse.each_with_index do |comment, index| %>
     <% 
       options = comment_hash(comment, @username, @user_email)
     %>

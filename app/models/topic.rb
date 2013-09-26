@@ -49,7 +49,7 @@ class Topic < ActiveRecord::Base
     if topic
       topic
     else
-      site = Site.find_by_key(site_key)
+      site = Site.first
       if site
         Topic.new(:key => topic_key, :site => site)
       else
@@ -63,7 +63,7 @@ class Topic < ActiveRecord::Base
     if topic
       topic
     else
-      site = Site.find_by_key(site_key)
+      site = Site.first
       if site
         site.topics.create!(
           :key => topic_key,
