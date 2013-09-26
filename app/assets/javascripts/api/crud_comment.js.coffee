@@ -1,5 +1,6 @@
 Juvia.enterChat = (e, $this_obj) ->
   self = this
+  self.userOnline("#chat_user_"+self.user_id)
   self.last_active_at = new Date;
   self.sendChat($this_obj) if e.keyCode is 13
 
