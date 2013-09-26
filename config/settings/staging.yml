@@ -1,3 +1,3 @@
 juvia_comment:
-  url: 'http://rdfnet-comments-staging.herokuapp.com'
+  url: 'http://batbugger-chat.herokuapp.com'
   COMMENT_POST_DURATION: '0.5'
