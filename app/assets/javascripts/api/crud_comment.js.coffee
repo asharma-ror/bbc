@@ -26,6 +26,28 @@ Juvia.sendChat = ($this_obj) ->
   if msg.length > 0
     self.loadScript('/api/comments/add_comment',data)
 
+Juvia.sendFile = (file) ->
+  self = this
+  # $this_obj is a inputbox object
+  name = self.username
+  img = self.user_image
+  msg = file
+  clear = true
+  self.addMessage(name, img, msg, clear) if msg.length > 0
+  data =
+   content: msg
+   parent_id: ""
+   restrict_comment_length: "false"
+   site_key: self.site_key
+   topic_key: self.topic_key
+   topic_title: "Batbugger"
+   topic_url: "Batbugger"
+   author_name: self.username
+   author_email: self.user_email
+
+  if msg.length > 0
+    self.loadScript('/api/comments/add_comment',data)
+
 Juvia.handleAddComment = (options) ->
   self = this
   self.comment_count = options.comment_count

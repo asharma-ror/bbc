@@ -83,7 +83,6 @@ class Api::CommentsController < ApplicationController
       return
     end
     comment_post_ability!(params[:author_email])
-    
     Topic.transaction do
       @topic = Topic.lookup_or_create(
         @site_key,
@@ -193,7 +192,7 @@ private
     else
       decompress(params[:content]).to_s
     end
-    @content = view_context.strip_tags @content
+    return @content
   end 
 
   def list_comments(perma_link_comment_id = "")
