@@ -70,7 +70,8 @@ Juvia.addMessage = (name, img, msg, clear, options = {}) ->
   idname = name.replace(" ", "-").toLowerCase()
   chat_time = hours + ":" + minutes + " " + ampm
   chat_time = options["creation_date"] if options["creation_date"]
-  chat_block = "<p><img src=\"" + img + "\" alt=\"\" />" + "<span class=\"msg-block\"><strong>" + name + "</strong> <span class=\"time\">- " + chat_time + "</span>" + "<span class=\"msg\">" + msg + "</span></span></p>"
+  # chat_block = "<p><img src=\"" + img + "\" alt=\"\" />" + "<span class=\"msg-block\"><strong>" + name + "</strong> <span class=\"time\">- " + chat_time + "</span>" + "<span class=\"msg\">" + msg + "</span></span></p>"
+  chat_block = "<p><img src=\"" + img + "\" alt=\"\" />" + "<span class=\"msg-block\"><span style=\"float:right\" class=\"time\">" + chat_time + "</span>" + "<span class=\"msg\">" + msg + "</span></span></p>"
   if options["prepend"]
     inner.prepend chat_block
   else
